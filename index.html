@@ -13,7 +13,7 @@
     <!-- Ícone do App (Suporte iOS e Android) -->
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23121212'/><circle cx='50' cy='50' r='30' fill='%2300f2ff'/><polygon points='43,38 65,50 43,62' fill='%23121212'/></svg>">
     
-    <!-- Web App Manifest Embutido (Gera o Ícone do App no Celular) -->
+    <!-- Web App Manifest Embutido -->
     <link rel="manifest" href="data:application/manifest+json;utf8,{
         %22name%22:%22WebRadio%20App%22,
         %22short_name%22:%22WebRadio%22,
@@ -33,7 +33,6 @@
             --accent: #00f2ff;
             --bg-main: #121212;
             --bg-card: #181818;
-            --bg-card-active: #222222;
             --text-main: #ffffff;
             --text-muted: #888888;
             --bottom-bar-h: 75px;
@@ -60,7 +59,7 @@
 
         /* Top Header */
         .app-header {
-            padding: 20px 20px 10px 20px;
+            padding: 20px 20px 12px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -90,78 +89,40 @@
             letter-spacing: 0.5px;
         }
 
-        /* Lista estilo Player de Música (Spotify/Apple Music) */
+        /* Lista Clean */
         .app-content {
             flex: 1;
             overflow-y: auto;
-            padding: 10px 15px;
+            padding: 15px;
             padding-bottom: calc(var(--bottom-bar-h) + 25px);
         }
 
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 15px 5px 12px 5px;
-        }
-
         .section-title {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
             color: var(--text-muted);
+            margin-bottom: 12px;
+            margin-left: 5px;
         }
 
         .playlist-container {
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 8px;
         }
 
-        /* Card de Músicas Estilo App de Música */
+        /* Card Simplificado */
         .track-item {
             display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 12px;
-            border-radius: 10px;
-            background: transparent;
-            transition: background 0.2s;
-        }
-
-        .track-number {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-muted);
-            width: 20px;
-            text-align: center;
-        }
-
-        .track-cover {
-            width: 44px;
-            height: 44px;
-            border-radius: 6px;
-            background: #252525;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            border: 1px solid #333;
-        }
-
-        .track-cover svg {
-            width: 20px;
-            height: 20px;
-            fill: var(--text-muted);
-        }
-
-        .track-details {
-            display: flex;
             flex-direction: column;
-            gap: 3px;
-            flex: 1;
-            overflow: hidden;
+            gap: 4px;
+            padding: 14px 16px;
+            border-radius: 12px;
+            background: var(--bg-card);
+            border: 1px solid #222;
+            transition: border-color 0.2s, background 0.2s;
         }
 
         .track-title {
@@ -183,24 +144,12 @@
 
         /* Estado Tocando (Ativo) */
         .track-item.active {
-            background: var(--bg-card-active);
+            border-color: var(--accent);
+            background: rgba(0, 242, 255, 0.05);
         }
 
         .track-item.active .track-title {
             color: var(--accent);
-        }
-
-        .track-item.active .track-number {
-            color: var(--accent);
-        }
-
-        .track-item.active .track-cover {
-            border-color: var(--accent);
-            background: rgba(0, 242, 255, 0.1);
-        }
-
-        .track-item.active .track-cover svg {
-            fill: var(--accent);
         }
 
         /* Mini Player Fixo no Rodapé */
@@ -215,7 +164,7 @@
             border-top: 1px solid #2a2a2a;
             display: flex;
             align-items: center;
-            padding: 0 16px;
+            padding: 0 18px;
             gap: 12px;
             box-shadow: 0 -10px 30px rgba(0,0,0,0.7);
             z-index: 100;
@@ -263,7 +212,6 @@
             align-items: center;
             gap: 3px;
             height: 16px;
-            margin-right: 4px;
         }
 
         .wave-bar {
@@ -297,13 +245,11 @@
         <h1>WebRadio <span class="badge-live">Ao Vivo</span></h1>
     </header>
 
-    <!-- Lista de Músicas / Playlist Estilo App -->
+    <!-- Playlist Simplificada -->
     <main class="app-content">
-        <div class="section-header">
-            <span class="section-title">Programação</span>
-        </div>
+        <div class="section-title">Programação</div>
         <div class="playlist-container" id="playlistItems">
-            <!-- As faixas serão carregadas aqui via JS -->
+            <!-- As faixas serão geradas aqui via JS -->
         </div>
     </main>
 
@@ -348,19 +294,19 @@
                 url: "https://dl.mixcloud.stream/secure/c/m4a/64/6/e/3/8/01b4-d881-4a02-b618-a5b2b8f252e4.m4a?sig=l3UhlXVp23zNTklmvuiiNA",
                 isDash: false
             },
-	    {
+	        {
                 title: "Chicos No Samba",
                 artist: "Gimenes Grooveria",
                 url: "https://dl.mixcloud.stream/secure/c/m4a/64/8/c/6/1/b85b-70cc-41b3-a161-8bc6fc722289.m4a?sig=2-G0YLXnoVSZlrHTX27JFQ",
                 isDash: false
             },
-	    {
+	        {
                 title: "Jorges",
                 artist: "Gimenes Grooveria",
                 url: "https://dl.mixcloud.stream/secure/c/m4a/64/9/c/2/f/ef45-8b98-402c-bee3-ed07afd49ae8.m4a?sig=iAr9NwruaI5HlXceCUm1ww",
                 isDash: false
             },
-	    {
+	        {
                 title: "2000s Rock",
                 artist: "Deezer",
                 url: "https://dl.mixcloud.stream/secure/c/m4a/64/a/3/0/2/f700-3325-4d37-bfd3-80afdda3f4f6.m4a?sig=wQTGgAX_pO23f46Uv3rEAQ",
@@ -371,7 +317,7 @@
                 artist: "Samba em Família",
                 url: "https://dl.mixcloud.stream/secure/c/m4a/64/c/b/3/6/f4c8-e919-4ccc-96a7-254469bd2c65.m4a?sig=lL3zIWWikf-M8-kVrGUDvA",
                 isDash: false
-            }
+            } 
 		];
 
         let currentIndex = -1;
@@ -464,19 +410,12 @@
             container.innerHTML = '';
 
             playlist.forEach((item, i) => {
-                const trackNum = (i + 1).toString().padStart(2, '0');
                 const card = document.createElement('div');
                 card.className = 'track-item';
                 card.id = `track-item-${i}`;
                 card.innerHTML = `
-                    <div class="track-number">${trackNum}</div>
-                    <div class="track-cover">
-                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 14.5c-2.49 0-4.5-2.01-4.5-4.5S9.51 7.5 12 7.5s4.5 2.01 4.5 4.5-2.01 4.5-4.5 4.5zm0-5.5c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1z"/></svg>
-                    </div>
-                    <div class="track-details">
-                        <div class="track-title">${item.title}</div>
-                        <div class="track-artist">${item.artist}</div>
-                    </div>
+                    <div class="track-title">${item.title}</div>
+                    <div class="track-artist">${item.artist}</div>
                 `;
                 container.appendChild(card);
             });
