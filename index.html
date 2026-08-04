@@ -4,16 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
-    <!-- Configurações PWA Mobile para Ícone na Tela Inicial -->
+    <!-- Configurações PWA Mobile -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="WebRadio">
     <meta name="theme-color" content="#121212">
     
-    <!-- Ícone do App (Suporte iOS e Android) -->
+    <!-- Ícone do App -->
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23121212'/><circle cx='50' cy='50' r='30' fill='%2300f2ff'/><polygon points='43,38 65,50 43,62' fill='%23121212'/></svg>">
     
-    <!-- Web App Manifest Embutido -->
+    <!-- Manifest Embutido -->
     <link rel="manifest" href="data:application/manifest+json;utf8,{
         %22name%22:%22WebRadio%20App%22,
         %22short_name%22:%22WebRadio%22,
@@ -56,6 +56,50 @@
             flex-direction: column;
             overflow: hidden;
         }
+
+        /* Tela Splash de Ativação do Áudio */
+        .start-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(18, 18, 18, 0.98);
+            backdrop-filter: blur(15px);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            padding: 30px;
+            text-align: center;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .start-overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .start-btn {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 16px 36px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 0 25px rgba(0, 242, 255, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: transform 0.2s;
+        }
+
+        .start-btn:active { transform: scale(0.95); }
 
         /* Top Header */
         .app-header {
@@ -142,7 +186,6 @@
             text-overflow: ellipsis;
         }
 
-        /* Estado Tocando (Ativo) */
         .track-item.active {
             border-color: var(--accent);
             background: rgba(0, 242, 255, 0.05);
@@ -189,7 +232,6 @@
             margin-top: 2px;
         }
 
-        /* Botão Play/Pause */
         .play-btn {
             width: 44px;
             height: 44px;
@@ -206,7 +248,7 @@
 
         .play-btn svg { width: 18px; height: 18px; fill: #000; }
 
-        /* Equalizador de Ondas Sonoras */
+        /* Ondas Sonoras */
         .wave-box {
             display: flex;
             align-items: center;
@@ -240,20 +282,28 @@
 </head>
 <body>
 
+    <!-- Overlay de Ativação Manual do Áudio -->
+    <div class="start-overlay" id="startOverlay">
+        <h2 style="font-size: 24px; font-weight: 800;">WebRadio App</h2>
+        <p style="font-size: 14px; color: #888;">Toque para sintonizar e iniciar a programação ao vivo.</p>
+        <button class="start-btn" onclick="startAppWithUserGesture()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#000"><path d="M8 5v14l11-7z"/></svg>
+            OUVIR AGORA
+        </button>
+    </div>
+
     <!-- Header do App -->
     <header class="app-header">
         <h1>WebRadio <span class="badge-live">Ao Vivo</span></h1>
     </header>
 
-    <!-- Playlist Simplificada -->
+    <!-- Playlist -->
     <main class="app-content">
         <div class="section-title">Programação</div>
-        <div class="playlist-container" id="playlistItems">
-            <!-- As faixas serão geradas aqui via JS -->
-        </div>
+        <div class="playlist-container" id="playlistItems"></div>
     </main>
 
-    <!-- Player Fixo no Rodapé -->
+    <!-- Mini Player Rodapé -->
     <div class="bottom-player" id="playerBar">
         <button class="play-btn" onclick="togglePlay()">
             <svg id="playIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
@@ -272,7 +322,7 @@
         </div>
     </div>
 
-    <audio id="audioEngine" autoplay></audio>
+    <audio id="audioEngine"></audio>
 
     <script>
         const playlist = [
@@ -294,19 +344,19 @@
                 url: "https://dl.mixcloud.stream/secure/c/m4a/64/6/e/3/8/01b4-d881-4a02-b618-a5b2b8f252e4.m4a?sig=l3UhlXVp23zNTklmvuiiNA",
                 isDash: false
             },
-	        {
+	    {
                 title: "Chicos No Samba",
                 artist: "Gimenes Grooveria",
                 url: "https://dl.mixcloud.stream/secure/c/m4a/64/8/c/6/1/b85b-70cc-41b3-a161-8bc6fc722289.m4a?sig=2-G0YLXnoVSZlrHTX27JFQ",
                 isDash: false
             },
-	        {
+	    {
                 title: "Jorges",
                 artist: "Gimenes Grooveria",
                 url: "https://dl.mixcloud.stream/secure/c/m4a/64/9/c/2/f/ef45-8b98-402c-bee3-ed07afd49ae8.m4a?sig=iAr9NwruaI5HlXceCUm1ww",
                 isDash: false
             },
-	        {
+	    {
                 title: "2000s Rock",
                 artist: "Deezer",
                 url: "https://dl.mixcloud.stream/secure/c/m4a/64/a/3/0/2/f700-3325-4d37-bfd3-80afdda3f4f6.m4a?sig=wQTGgAX_pO23f46Uv3rEAQ",
@@ -317,8 +367,7 @@
                 artist: "Samba em Família",
                 url: "https://dl.mixcloud.stream/secure/c/m4a/64/c/b/3/6/f4c8-e919-4ccc-96a7-254469bd2c65.m4a?sig=lL3zIWWikf-M8-kVrGUDvA",
                 isDash: false
-            } 
-		];
+            }        ];
 
         let currentIndex = -1;
         let shakaPlayer;
@@ -335,7 +384,16 @@
             audio.onended = () => {
                 playRandomTrack();
             };
+        }
 
+        async function startAppWithUserGesture() {
+            // Esconde a tela splash de ativeção
+            document.getElementById('startOverlay').classList.add('hidden');
+            
+            // Destrava o áudio no contexto do navegador
+            audio.play().catch(() => {});
+
+            // Sorteia e toca a primeira faixa imediatamente
             playRandomTrack();
         }
 
@@ -368,16 +426,8 @@
                     audio.src = track.url;
                 }
 
-                let playPromise = audio.play();
-                if (playPromise !== undefined) {
-                    playPromise.then(() => {
-                        setUIState(true);
-                    }).catch(() => {
-                        audio.muted = true;
-                        audio.play();
-                        setUIState(true);
-                    });
-                }
+                await audio.play();
+                setUIState(true);
             } catch (e) {
                 console.error("Erro ao carregar faixa, sorteando outra...", e);
                 setTimeout(playRandomTrack, 1000);
@@ -386,7 +436,6 @@
 
         function togglePlay() {
             if (audio.paused) {
-                audio.muted = false;
                 audio.play();
                 setUIState(true);
             } else {
