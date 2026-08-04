@@ -263,19 +263,48 @@
         // Array da Playlist (Adicione novos links aqui)
         const playlist = [
             {
-                title: "Radio Bullguer programa 82",
-                artist: "MPB & Bossa Nova",
-                url: "https://audio.mixcloud.stream/secure/dash2/c/b/3/a/8d90-c972-4c01-8e71-a0d7fc36bdd3.m4a/manifest.mpd",
+                title: "Hip Hop Journal Episode 106 w",
+                artist: "DJ Stikmand",
+                url: "https://dl.mixcloud.stream/secure/c/m4a/64/c/5/0/1/3227-e125-4f71-8f0e-1385ceb2e079.m4a?sig=_xKR0Y1UF2g9dMd2HYwWOg",
                 isDash: true
             },
             {
-                title: "We Came to Party",
-                artist: "Live Mix",
-                url: "https://rr3---sn-gpv7kn7y.c.youtube.com/videoplayback?expire=1774869284&ei=xAbKafOIEvuQ-LAP_drK2Ak&ip=2804%3A52b8%3Ac013%3Ace00%3A6553%3Abe1b%3Acc4d%3A90a7&id=o-ACINNUMIKcgXCrQKZGKvIF7QEr6E94I8_Mk0EI2U90Fz&itag=140&source=youtube&requiressl=yes&xpc=EgVo2aDSNQ%3D%3D&met=1774847684%2C&mh=fp&mm=32%2C26&mn=sn-gpv7kn7y%2Csn-bg0s7n7s&ms=su%2Conr&mv=m&mvi=3&pl=34&rms=su%2Csu&sc=yes&gcr=br&initcwndbps=2651250&siu=1&bui=AUUZDGI8vH6VTLghkfz15wBgIq_57iLbi5QvaqZkQ8Umw8WJO2PRGtouA7KRnhGNMtI7eo-kHA&vprv=1&prv=1&svpuc=1&mime=audio%2Fmp4&ns=dnG76byPk4sy4G7_cIS5tzUT&rqh=1&gir=yes&clen=102555043&dur=6336.678&lmt=1749693661058814&mt=1774847333&fvip=4&keepalive=yes&lmw=1&fexp=51565116%2C51565681&c=TVHTML5&sefc=1&txp=0000224&n=Ct2MNwtv6uOzig&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cxpc%2Cgcr%2Csiu%2Cbui%2Cvprv%2Cprv%2Csvpuc%2Cmime%2Cns%2Crqh%2Cgir%2Cclen%2Cdur%2Clmt&sig=AHEqNM4wRQIhAKpHaMGmOxuGsYwmE5WDRJbD5jQ1OA9NcywowW1Qk_syAiAw1M_ETr0dOsUf4Ry9HuKGbF22lxDRKYVuSK2byB9ELQ%3D%3D&lsparams=met%2Cmh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Crms%2Csc%2Cinitcwndbps&lsig=APaTxxMwRAIgYOF_b0cTCDcde9i9k661Og9525X2WlZWkESvXtqp1QYCIEBKTLBdokhhoqY651d1MNpdMadTHOmLIgSnzaLigpSW",
+                title: "The Up In Smoke Madd Tour Mix - Pt 1",
+                artist: "Dailey Maddawg",
+                url: "https://dl.mixcloud.stream/secure/c/m4a/64/c/7/d/b/d50a-85a7-4463-8fbc-8bfd07672c56.m4a?sig=szJXEWTyLHy2RxU3ewcQ8Q",
                 isDash: false
-            }
+            },
+            {
+                title: "MiXturada",
+                artist: "Gimenes Grooveria",
+                url: "https://dl.mixcloud.stream/secure/c/m4a/64/6/e/3/8/01b4-d881-4a02-b618-a5b2b8f252e4.m4a?sig=l3UhlXVp23zNTklmvuiiNA",
+                isDash: false
+            },
+	    {
+                title: "Chicos No Samba",
+                artist: "Gimenes Grooveria",
+                url: "https://dl.mixcloud.stream/secure/c/m4a/64/8/c/6/1/b85b-70cc-41b3-a161-8bc6fc722289.m4a?sig=2-G0YLXnoVSZlrHTX27JFQ",
+                isDash: false
+            },
+	    {
+                title: "Jorges",
+                artist: "Gimenes Grooveria",
+                url: "https://dl.mixcloud.stream/secure/c/m4a/64/9/c/2/f/ef45-8b98-402c-bee3-ed07afd49ae8.m4a?sig=iAr9NwruaI5HlXceCUm1ww",
+                isDash: false
+            },
+	    {
+                title: "2000s Rock",
+                artist: "Deezer",
+                url: "https://dl.mixcloud.stream/secure/c/m4a/64/a/3/0/2/f700-3325-4d37-bfd3-80afdda3f4f6.m4a?sig=wQTGgAX_pO23f46Uv3rEAQ",
+                isDash: false
+            },
+            {
+                title: "Bravus Vol. 1",
+                artist: "Samba em Família",
+                url: "https://dl.mixcloud.stream/secure/c/m4a/64/c/b/3/6/f4c8-e919-4ccc-96a7-254469bd2c65.m4a?sig=lL3zIWWikf-M8-kVrGUDvA",
+                isDash: false
+            },
         ];
-
         let currentIndex = -1;
         let shakaPlayer;
         const audio = document.getElementById('audioEngine');
