@@ -198,7 +198,7 @@
             gap: 8px;
         }
 
-        /* Item de Histórico (Música Tocada) */
+        /* Item de Histórico */
         .track-item {
             display: flex;
             flex-direction: column;
@@ -375,7 +375,6 @@
     <audio id="audioEngine"></audio>
 
     <script>
-        // Playlist com tag de gênero (genre)
         const masterPlaylist = [
             {
                 title: "Hip Hop Journal Episode 106 w",
@@ -398,21 +397,21 @@
                 url: "https://dl.mixcloud.stream/secure/c/m4a/64/6/e/3/8/01b4-d881-4a02-b618-a5b2b8f252e4.m4a?sig=l3UhlXVp23zNTklmvuiiNA",
                 isDash: false
             },
-	    {
+	        {
                 title: "Chicos No Samba",
                 artist: "Gimenes Grooveria",
 		genre: "Samba & MPB",
                 url: "https://dl.mixcloud.stream/secure/c/m4a/64/8/c/6/1/b85b-70cc-41b3-a161-8bc6fc722289.m4a?sig=2-G0YLXnoVSZlrHTX27JFQ",
                 isDash: false
             },
-	    {
+	        {
                 title: "Jorges",
                 artist: "Gimenes Grooveria",
                 genre: "Samba & MPB",
 		url: "https://dl.mixcloud.stream/secure/c/m4a/64/9/c/2/f/ef45-8b98-402c-bee3-ed07afd49ae8.m4a?sig=iAr9NwruaI5HlXceCUm1ww",
                 isDash: false
             },
-	    {
+	        {
                 title: "2000s Rock",
                 artist: "Deezer",
                 genre: "Rock",
@@ -426,8 +425,8 @@
 		url: "https://dl.mixcloud.stream/secure/c/m4a/64/c/b/3/6/f4c8-e919-4ccc-96a7-254469bd2c65.m4a?sig=lL3zIWWikf-M8-kVrGUDvA",
                 isDash: false
             }  
-        ];
-
+		];
+		
         let activePlaylist = [];
         let playedHistory = [];
         let currentIndex = -1;
@@ -453,14 +452,12 @@
             const container = document.getElementById('genreButtons');
             container.innerHTML = '';
 
-            // Botão Ouvir Tudo
             const allBtn = document.createElement('button');
             allBtn.className = 'genre-btn primary';
             allBtn.innerHTML = `<span>Ouvir Todos os Gêneros</span> ➔`;
             allBtn.onclick = () => selectGenreAndStart("ALL");
             container.appendChild(allBtn);
 
-            // Mapeia gêneros únicos
             const genres = [...new Set(masterPlaylist.map(item => item.genre))];
             
             genres.forEach(genre => {
@@ -480,14 +477,12 @@
             selectedGenre = genre;
             document.getElementById('activeGenreBadge').innerText = genre === "ALL" ? "TODOS" : genre;
             
-            // Filtra a playlist de acordo com o gênero escolhido
             if (genre === "ALL") {
                 activePlaylist = [...masterPlaylist];
             } else {
                 activePlaylist = masterPlaylist.filter(item => item.genre === genre);
             }
 
-            // Reseta histórico e índice
             playedHistory = [];
             currentIndex = -1;
             document.getElementById('historyItems').innerHTML = '';
@@ -519,7 +514,6 @@
             document.getElementById('trackTitle').innerText = track.title;
             document.getElementById('trackArtist').innerText = track.artist;
 
-            // Registra a faixa tocada no histórico
             addTrackToHistory(track);
 
             try {
@@ -539,7 +533,6 @@
         }
 
         function addTrackToHistory(track) {
-            // Insere no topo do histórico
             playedHistory.unshift(track);
             renderHistoryUI();
         }
@@ -551,9 +544,15 @@
             playedHistory.forEach((item, i) => {
                 const card = document.createElement('div');
                 card.className = `track-item ${i === 0 ? 'active' : ''}`;
+                
+                // Exibe o gênero apenas se a opção selecionada for "TODOS"
+                const artistSubtitle = selectedGenre === "ALL" 
+                    ? `${item.artist} • ${item.genre}` 
+                    : item.artist;
+
                 card.innerHTML = `
                     <div class="track-title">${item.title}</div>
-                    <div class="track-artist">${item.artist} • ${item.genre}</div>
+                    <div class="track-artist">${artistSubtitle}</div>
                 `;
                 container.appendChild(card);
             });
