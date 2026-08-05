@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel Admin - WebRadio</title>
+    <title>Painel Admin Auto-Sync - WebRadio</title>
     <style>
         :root {
             --accent: #00f2ff;
@@ -12,6 +12,7 @@
             --text-main: #ffffff;
             --text-muted: #888888;
             --danger: #ff4444;
+            --success: #00ff88;
         }
 
         * {
@@ -29,7 +30,6 @@
             margin: 0 auto;
         }
 
-        /* Modal de Autenticação */
         .auth-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -43,7 +43,6 @@
         }
 
         .auth-overlay.hidden { display: none; }
-
         h1, h2, h3 { margin-bottom: 15px; }
         
         .form-group {
@@ -60,7 +59,7 @@
             text-transform: uppercase;
         }
 
-        input, select {
+        input {
             background: var(--bg-card);
             border: 1px solid #333;
             color: var(--text-main);
@@ -94,10 +93,10 @@
 
         .btn:active { transform: scale(0.98); }
 
-        .btn-secondary {
-            background: #2a2a2a;
-            color: var(--text-main);
-            margin-top: 10px;
+        .btn-save {
+            background: var(--success);
+            color: #000;
+            font-size: 16px;
         }
 
         .card {
@@ -137,35 +136,42 @@
             border-radius: 6px;
         }
 
-        textarea {
-            width: 100%;
-            height: 140px;
-            background: #000;
-            color: var(--accent);
-            border: 1px solid #333;
-            border-radius: 8px;
-            padding: 10px;
-            font-family: monospace;
-            font-size: 11px;
-            resize: none;
+        #statusMsg {
             margin-top: 10px;
+            font-size: 13px;
+            text-align: center;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 
-    <!-- Tela de Bloqueio -->
+    <!-- Autenticação Admin -->
     <div class="auth-overlay" id="authOverlay">
         <h2>Acesso Restrito</h2>
         <div class="form-group" style="width: 100%; max-width: 280px;">
-            <input type="password" id="pinInput" placeholder="Digite a Senha Admin">
+            <input type="password" id="pinInput" placeholder="Senha Admin">
             <button class="btn" onclick="checkAuth()">Entrar</button>
         </div>
     </div>
 
-    <!-- Conteúdo do Painel -->
-    <h2>Gerenciador da Rádio</h2>
+    <h2>Gerenciador da Rádio (Auto-Sync)</h2>
 
+    <!-- Configuração da API do GitHub -->
+    <div class="card">
+        <h3>Configuração de Sincronização</h3>
+        <div class="form-group">
+            <label>Usuário GitHub / Repositório</label>
+            <input type="text" id="ghRepo" placeholder="seu-usuario/seu-repositorio">
+        </div>
+        <div class="form-group">
+            <label>GitHub Personal Access Token (PAT)</label>
+            <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+        </div>
+        <button class="btn" style="background: #333; color: #fff;" onclick="saveConfig()">Salvar Chave no Navegador</button>
+    </div>
+
+    <!-- Formulário para Adicionar Música -->
     <div class="card">
         <h3>Adicionar Nova Faixa</h3>
         <div class="form-group">
@@ -186,54 +192,66 @@
         </div>
         <div class="form-group checkbox-group">
             <input type="checkbox" id="isDash">
-            <label for="isDash" style="text-transform: none; color: #fff;">É transmissão DASH (.mpd)?</label>
+            <label for="isDash" style="text-transform: none; color: #fff;">É stream DASH (.mpd)?</label>
         </div>
-        <button class="btn" onclick="addTrack()">+ Adicionar Faixa</button>
+        <button class="btn" onclick="addTrack()">+ Adicionar à Lista Local</button>
     </div>
 
-    <h3>Músicas Atuais no Servidor (<span id="count">0</span>)</h3>
+    <h3>Músicas Atuais (<span id="count">0</span>)</h3>
     <br>
     <div class="track-list" id="trackList"></div>
 
     <br><hr style="border-color: #222;"><br>
 
+    <!-- Botão de Atualização Automática -->
     <div class="card">
-        <h3>Salvar Alterações</h3>
-        <p style="font-size: 12px; color: var(--text-muted); margin-top: 5px;">
-            Copie o código abaixo e substitua todo o texto dentro do arquivo <b>playlist.json</b> no seu repositório do GitHub.
-        </p>
-        <button class="btn btn-secondary" onclick="copyJSON()">Copiar JSON Atualizado</button>
-        <textarea id="jsonOutput" readonly></textarea>
+        <button class="btn btn-save" id="saveBtn" onclick="commitToGitHub()">☁️ Publicar Alterações no GitHub</button>
+        <div id="statusMsg"></div>
     </div>
 
     <script>
-        const ADMIN_PIN = "1234"; // Alterar senha se desejar
+        const ADMIN_PIN = "1234";
         let playlist = [];
+        let fileSHA = ""; // Necessário para atualizar arquivos via API do GitHub
 
         function checkAuth() {
-            const input = document.getElementById('pinInput').value;
-            if (input === ADMIN_PIN) {
+            if (document.getElementById('pinInput').value === ADMIN_PIN) {
                 document.getElementById('authOverlay').classList.add('hidden');
-                fetchExistingPlaylist();
+                loadStoredConfig();
+                fetchFromGitHub();
             } else {
                 alert('Senha incorreta!');
             }
         }
 
-        // Busca o arquivo playlist.json já existente no servidor
-        async function fetchExistingPlaylist() {
+        function loadStoredConfig() {
+            if (localStorage.getItem('gh_repo')) document.getElementById('ghRepo').value = localStorage.getItem('gh_repo');
+            if (localStorage.getItem('gh_token')) document.getElementById('ghToken').value = localStorage.getItem('gh_token');
+        }
+
+        function saveConfig() {
+            localStorage.setItem('gh_repo', document.getElementById('ghRepo').value.trim());
+            localStorage.setItem('gh_token', document.getElementById('ghToken').value.trim());
+            alert('Configurações salvas no navegador!');
+            fetchFromGitHub();
+        }
+
+        // Carrega o playlist.json usando a API do GitHub para obter a SHA do arquivo
+        async function fetchFromGitHub() {
+            const repo = localStorage.getItem('gh_repo');
+            if (!repo) return renderList();
+
             try {
-                // Previne cache do navegador para sempre pegar o arquivo mais recente
-                const res = await fetch('playlist.json?t=' + new Date().getTime());
+                const res = await fetch(`https://api.github.com/repos/${repo}/contents/playlist.json?t=` + new Date().getTime());
                 if (res.ok) {
-                    playlist = await res.json();
-                } else {
-                    console.warn("Nenhum playlist.json encontrado, iniciando lista vazia.");
-                    playlist = [];
+                    const data = await res.json();
+                    fileSHA = data.sha;
+                    // Decodifica Base64 retornado pela API do GitHub
+                    const content = decodeURIComponent(escape(atob(data.content)));
+                    playlist = JSON.parse(content);
                 }
             } catch (e) {
-                console.error("Erro ao carregar o arquivo existente:", e);
-                playlist = [];
+                console.error("Erro ao buscar dados do GitHub:", e);
             }
             renderList();
         }
@@ -242,10 +260,6 @@
             const listEl = document.getElementById('trackList');
             document.getElementById('count').innerText = playlist.length;
             listEl.innerHTML = '';
-
-            if (playlist.length === 0) {
-                listEl.innerHTML = '<div style="color: var(--text-muted); font-size: 13px;">Nenhuma música encontrada no arquivo.</div>';
-            }
 
             playlist.forEach((track, index) => {
                 const item = document.createElement('div');
@@ -259,9 +273,6 @@
                 `;
                 listEl.appendChild(item);
             });
-
-            // Atualiza o quadro de exportação
-            document.getElementById('jsonOutput').value = JSON.stringify(playlist, null, 2);
         }
 
         function addTrack() {
@@ -272,15 +283,13 @@
             const isDash = document.getElementById('isDash').checked;
 
             if (!title || !artist || !genre || !url) {
-                alert('Por favor, preencha todos os campos.');
+                alert('Preencha todos os campos!');
                 return;
             }
 
-            // Adiciona a nova música no início da lista
             playlist.unshift({ title, artist, genre, url, isDash });
             renderList();
 
-            // Limpa os campos do formulário
             document.getElementById('title').value = '';
             document.getElementById('artist').value = '';
             document.getElementById('genre').value = '';
@@ -289,18 +298,58 @@
         }
 
         function removeTrack(index) {
-            const track = playlist[index];
-            if (confirm(`Deseja remover "${track.title}" da rádio?`)) {
-                playlist.splice(index, 1);
-                renderList();
-            }
+            playlist.splice(index, 1);
+            renderList();
         }
 
-        function copyJSON() {
-            const textarea = document.getElementById("jsonOutput");
-            textarea.select();
-            document.execCommand("copy");
-            alert("JSON copiado! Agora abra o playlist.json no GitHub, cole e salve.");
+        // Envia o JSON atualizado direto para o GitHub sem copiar/colar
+        async function commitToGitHub() {
+            const repo = localStorage.getItem('gh_repo');
+            const token = localStorage.getItem('gh_token');
+            const statusEl = document.getElementById('statusMsg');
+
+            if (!repo || !token) {
+                alert('Preencha o repositório e o Token do GitHub no topo da página antes de salvar.');
+                return;
+            }
+
+            statusEl.style.color = 'var(--accent)';
+            statusEl.innerText = 'Enviando alterações para o GitHub...';
+
+            // Codifica o JSON em Base64
+            const jsonString = JSON.stringify(playlist, null, 2);
+            const contentBase64 = btoa(unescape(encodeURIComponent(jsonString)));
+
+            const payload = {
+                message: "Atualização via Painel Admin WebRadio",
+                content: contentBase64,
+                sha: fileSHA
+            };
+
+            try {
+                const res = await fetch(`https://api.github.com/repos/${repo}/contents/playlist.json`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    const resData = await res.json();
+                    fileSHA = resData.content.sha; // Atualiza a SHA com a nova versão
+                    statusEl.style.color = 'var(--success)';
+                    statusEl.innerText = '✅ Playlist atualizada no GitHub com sucesso!';
+                } else {
+                    const err = await res.json();
+                    statusEl.style.color = 'var(--danger)';
+                    statusEl.innerText = 'Erro ao salvar: ' + (err.message || 'Verifique o Token');
+                }
+            } catch (e) {
+                statusEl.style.color = 'var(--danger)';
+                statusEl.innerText = 'Erro de conexão com o GitHub.';
+            }
         }
     </script>
 </body>
