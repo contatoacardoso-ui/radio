@@ -332,9 +332,7 @@
         <div class="genre-selector-title">Escolha o Estilo</div>
         <div class="genre-selector-subtitle">Selecione o gênero para iniciar a rádio ao vivo</div>
         
-        <div class="genre-grid" id="genreButtons">
-            <!-- Botões de gênero gerados dinamicamente -->
-        </div>
+        <div class="genre-grid" id="genreButtons"></div>
     </div>
 
     <!-- Header do App -->
@@ -348,9 +346,7 @@
             <span class="section-title">Tocadas Recentemente</span>
             <button class="change-genre-btn" onclick="openGenreSelector()">Trocar Gênero</button>
         </div>
-        <div class="history-container" id="historyItems">
-            <!-- As músicas que forem tocadas aparecerão aqui -->
-        </div>
+        <div class="history-container" id="historyItems"></div>
     </main>
 
     <!-- Mini Player Rodapé -->
@@ -379,7 +375,7 @@
             {
                 title: "Hip Hop Journal Episode 106 w",
                 artist: "DJ Stikmand",
-		genre: "Hip-Hop & Rap",
+				genre: "Hip-Hop & Rap",
                 url: "https://dl.mixcloud.stream/secure/c/m4a/64/c/5/0/1/3227-e125-4f71-8f0e-1385ceb2e079.m4a?sig=_xKR0Y1UF2g9dMd2HYwWOg",
                 isDash: true
             },
@@ -387,20 +383,20 @@
                 title: "The Up In Smoke Madd Tour Mix - Pt 1",
                 artist: "Dailey Maddawg",
                 genre: "Hip-Hop & Rap",
-		url: "https://dl.mixcloud.stream/secure/c/m4a/64/c/7/d/b/d50a-85a7-4463-8fbc-8bfd07672c56.m4a?sig=szJXEWTyLHy2RxU3ewcQ8Q",
+				url: "https://dl.mixcloud.stream/secure/c/m4a/64/c/7/d/b/d50a-85a7-4463-8fbc-8bfd07672c56.m4a?sig=szJXEWTyLHy2RxU3ewcQ8Q",
                 isDash: false
             },
             {
                 title: "MiXturada",
                 artist: "Gimenes Grooveria",
-		genre: "Hip-Hop & Rap",
+				genre: "Hip-Hop & Rap",
                 url: "https://dl.mixcloud.stream/secure/c/m4a/64/6/e/3/8/01b4-d881-4a02-b618-a5b2b8f252e4.m4a?sig=l3UhlXVp23zNTklmvuiiNA",
                 isDash: false
             },
 	        {
                 title: "Chicos No Samba",
                 artist: "Gimenes Grooveria",
-		genre: "Samba & MPB",
+				genre: "Samba & MPB",
                 url: "https://dl.mixcloud.stream/secure/c/m4a/64/8/c/6/1/b85b-70cc-41b3-a161-8bc6fc722289.m4a?sig=2-G0YLXnoVSZlrHTX27JFQ",
                 isDash: false
             },
@@ -408,32 +404,32 @@
                 title: "Jorges",
                 artist: "Gimenes Grooveria",
                 genre: "Samba & MPB",
-		url: "https://dl.mixcloud.stream/secure/c/m4a/64/9/c/2/f/ef45-8b98-402c-bee3-ed07afd49ae8.m4a?sig=iAr9NwruaI5HlXceCUm1ww",
+				url: "https://dl.mixcloud.stream/secure/c/m4a/64/9/c/2/f/ef45-8b98-402c-bee3-ed07afd49ae8.m4a?sig=iAr9NwruaI5HlXceCUm1ww",
                 isDash: false
             },
 	        {
                 title: "2000s Rock",
                 artist: "Deezer",
                 genre: "Rock",
-		url: "https://dl.mixcloud.stream/secure/c/m4a/64/a/3/0/2/f700-3325-4d37-bfd3-80afdda3f4f6.m4a?sig=wQTGgAX_pO23f46Uv3rEAQ",
+				url: "https://dl.mixcloud.stream/secure/c/m4a/64/a/3/0/2/f700-3325-4d37-bfd3-80afdda3f4f6.m4a?sig=wQTGgAX_pO23f46Uv3rEAQ",
                 isDash: false
             },
             {
                 title: "Bravus Vol. 1",
                 artist: "Samba em Família",
                 genre: "Samba & MPB",
-		url: "https://dl.mixcloud.stream/secure/c/m4a/64/c/b/3/6/f4c8-e919-4ccc-96a7-254469bd2c65.m4a?sig=lL3zIWWikf-M8-kVrGUDvA",
+				url: "https://dl.mixcloud.stream/secure/c/m4a/64/c/b/3/6/f4c8-e919-4ccc-96a7-254469bd2c65.m4a?sig=lL3zIWWikf-M8-kVrGUDvA",
                 isDash: false
             },  
             {
                 title: "American Music Awards 2001 (Part 2)",
                 artist: "Dailey Maddawg",
                 genre: "Rock",
-		url: "https://dl.mixcloud.stream/secure/c/m4a/64/d/c/4/6/55c4-d498-4cf8-b1af-131ca1c5e626.m4a?sig=lNSHUiQF1blPYXJUY3126g",
+				url: "https://dl.mixcloud.stream/secure/c/m4a/64/d/c/4/6/55c4-d498-4cf8-b1af-131ca1c5e626.m4a?sig=lNSHUiQF1blPYXJUY3126g",
                 isDash: false
             }  
 		];
-		
+
         let activePlaylist = [];
         let playedHistory = [];
         let currentIndex = -1;
@@ -449,10 +445,48 @@
             shakaPlayer = new shaka.Player(audio);
 
             renderGenreButtons();
+            setupBackButtonPrevention();
+            setupMediaSessionHandlers();
 
             audio.onended = () => {
                 playRandomTrack();
             };
+        }
+
+        /* --- PREVENÇÃO DE FECHAMENTO PELO BOTÃO VOLTAR --- */
+        function setupBackButtonPrevention() {
+            // Adiciona um estado ao histórico para prender a navegação interna
+            history.pushState({ page: 'app' }, "", location.href);
+
+            window.addEventListener('popstate', (event) => {
+                // Se a tela de gêneros estiver aberta, o botão voltar apenas fecha o modal
+                const overlay = document.getElementById('startOverlay');
+                if (!overlay.classList.contains('hidden')) {
+                    overlay.classList.add('hidden');
+                }
+                
+                // Força o histórico a re-injetar o estado, impedindo o fechamento do app
+                history.pushState({ page: 'app' }, "", location.href);
+            });
+        }
+
+        /* --- MEDIA SESSION API (Notificação / Controles de Mídia / Tela Bloqueada) --- */
+        function updateMediaSession(track) {
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: track.title,
+                    artist: track.artist,
+                    album: 'WebRadio Live'
+                });
+            }
+        }
+
+        function setupMediaSessionHandlers() {
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.setActionHandler('play', () => togglePlay());
+                navigator.mediaSession.setActionHandler('pause', () => togglePlay());
+                navigator.mediaSession.setActionHandler('nexttrack', () => playRandomTrack());
+            }
         }
 
         function renderGenreButtons() {
@@ -522,6 +556,7 @@
             document.getElementById('trackArtist').innerText = track.artist;
 
             addTrackToHistory(track);
+            updateMediaSession(track);
 
             try {
                 if (track.isDash) {
@@ -552,7 +587,6 @@
                 const card = document.createElement('div');
                 card.className = `track-item ${i === 0 ? 'active' : ''}`;
                 
-                // Exibe o gênero apenas se a opção selecionada for "TODOS"
                 const artistSubtitle = selectedGenre === "ALL" 
                     ? `${item.artist} • ${item.genre}` 
                     : item.artist;
@@ -579,9 +613,11 @@
             if (isPlaying) {
                 playIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
                 playerBar.classList.add('playing');
+                if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
             } else {
                 playIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
                 playerBar.classList.remove('playing');
+                if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
             }
         }
 
