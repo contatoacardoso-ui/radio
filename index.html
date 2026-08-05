@@ -77,7 +77,7 @@
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: 12px;
-      padding: 16px 20px;
+      padding: 18px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -96,13 +96,9 @@
       color: var(--text-main);
     }
 
-    .genre-count {
-      font-size: 0.75rem;
+    .genre-icon {
+      font-size: 0.85rem;
       color: var(--text-muted);
-      background: #27272a;
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-weight: 400;
     }
 
     /* TELA 2: TRANSMISSÃO */
@@ -398,16 +394,15 @@
       let html = `
         <div class="genre-card" onclick="startRadio('Todos')">
           <div class="genre-name">Ouvir todos os gêneros</div>
-          <div class="genre-count">${playlist.length} faixas</div>
+          <div class="genre-icon">→</div>
         </div>
       `;
 
       genres.forEach(genre => {
-        const count = playlist.filter(item => item.genre === genre).length;
         html += `
           <div class="genre-card" onclick="startRadio('${genre}')">
             <div class="genre-name">${genre}</div>
-            <div class="genre-count">${count} faixas</div>
+            <div class="genre-icon">→</div>
           </div>
         `;
       });
@@ -441,9 +436,7 @@
       playNextRandomTrack();
     }
 
-    // Toca a próxima faixa aleatória (Loop infinito sem repetição contínua)
     async function playNextRandomTrack() {
-      // Se acabou o bloco atual, reembaralha e continua infinitamente
       if (poolPlaylist.length === 0) {
         const baseList = (selectedGenreGlobal === 'Todos') 
           ? [...playlist] 
@@ -454,7 +447,6 @@
       currentTrack = poolPlaylist.pop();
       playedHistory.unshift(currentTrack);
 
-      // Atualiza UI da Tela
       document.getElementById('current-title').innerText = currentTrack.title || 'Sem título';
       document.getElementById('current-artist').innerText = currentTrack.artist || 'Artista desconhecido';
       
@@ -465,7 +457,6 @@
       document.getElementById('status-text').innerText = 'Sintonizando...';
       renderHistoryUI();
 
-      // Configura Notificações do Sistema / Tela de Bloqueio (Media Session API)
       updateMediaSession(currentTrack);
 
       try {
@@ -483,13 +474,12 @@
       }
     }
 
-    // Atualiza a notificação do sistema do celular
     function updateMediaSession(track) {
       if ('mediaSession' in navigator) {
         navigator.mediaSession.metadata = new MediaMetadata({
           title: track.title || 'Sem título',
           artist: track.artist || 'Artista desconhecido',
-          album: track.genre || 'Web Rádio' // Exibe o gênero no campo de álbum
+          album: track.genre || 'Web Rádio'
         });
 
         navigator.mediaSession.setActionHandler('play', () => playAudio());
@@ -543,7 +533,6 @@
       }
     }
 
-    // Algoritmo Fisher-Yates para sorteio aleatório
     function shuffleArray(array) {
       for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -556,7 +545,6 @@
       document.getElementById('play-btn').addEventListener('click', togglePlay);
       document.getElementById('back-btn').addEventListener('click', showHomeScreen);
 
-      // Reprodução contínua automática
       audioElement.addEventListener('ended', () => {
         playNextRandomTrack();
       });
