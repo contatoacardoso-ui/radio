@@ -90,7 +90,7 @@
 
     /* TELA 2: PLAYER DE ÁUDIO */
     #player-screen {
-      display: none; /* Inicia oculto */
+      display: none;
       flex-direction: column;
       gap: 20px;
     }
@@ -116,6 +116,35 @@
       text-align: center;
     }
 
+    .live-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 0, 0, 0.2);
+      color: #ff4d4d;
+      font-size: 0.75rem;
+      font-weight: bold;
+      padding: 4px 10px;
+      border-radius: 20px;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      background: #ff4d4d;
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.3; }
+      100% { opacity: 1; }
+    }
+
     .track-info {
       margin-bottom: 20px;
     }
@@ -128,7 +157,7 @@
     }
 
     .track-artist {
-      font-size: 1rem;
+      font-size: 1.05rem;
       color: #b3b3b3;
       margin-bottom: 4px;
     }
@@ -147,77 +176,87 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: 15px;
       margin-top: 15px;
-    }
-
-    button.btn-control {
-      background: #282828;
-      border: none;
-      color: #fff;
-      font-size: 1.2rem;
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      cursor: pointer;
-      transition: background 0.2s, transform 0.1s;
-    }
-
-    button.btn-control:hover {
-      background: #3e3e3e;
-    }
-
-    button.btn-control:active {
-      transform: scale(0.95);
     }
 
     button.btn-play {
       background: #1DB954;
+      border: none;
       color: #000;
-      width: 65px;
-      height: 65px;
-      font-size: 1.5rem;
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      font-size: 1.8rem;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     button.btn-play:hover {
       background: #1ed760;
     }
 
-    .playlist-section {
+    button.btn-play:active {
+      transform: scale(0.95);
+    }
+
+    /* HISTÓRICO DE REPRODUÇÃO */
+    .history-section {
       background: #1e1e1e;
       padding: 16px;
       border-radius: 16px;
-      max-height: 250px;
-      overflow-y: auto;
     }
 
-    .playlist-item {
+    .history-title {
+      font-size: 0.85rem;
+      color: #b3b3b3;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .history-list {
+      max-height: 250px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .history-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px;
-      border-bottom: 1px solid #282828;
-      cursor: pointer;
+      padding: 10px 12px;
+      background: #252525;
       border-radius: 8px;
     }
 
-    .playlist-item:hover {
-      background: #282828;
-    }
-
-    .playlist-item.active {
-      background: #282828;
+    .history-item.now-playing {
+      background: #2a3a2e;
       border-left: 4px solid #1DB954;
     }
 
-    .playlist-item-title {
-      font-size: 0.95rem;
-      color: #fff;
+    .history-item-info {
+      text-align: left;
     }
 
-    .playlist-item-artist {
+    .history-item-title {
+      font-size: 0.95rem;
+      color: #fff;
+      font-weight: 500;
+    }
+
+    .history-item-artist {
       font-size: 0.8rem;
       color: #b3b3b3;
+    }
+
+    .history-tag {
+      font-size: 0.75rem;
+      color: #1DB954;
     }
 
     .status-msg {
@@ -242,41 +281,48 @@
   <div class="container">
     <audio id="audio-element" controls></audio>
 
-    <!-- TELA 1: LISTA DE ESTILOS/GÊNEROS -->
+    <!-- TELA 1: LISTA DE ESTILOS -->
     <div id="home-screen">
-      <!-- Cards gerados dinamicamente pelo JS -->
+      <!-- Cards gerados dinamicamente -->
     </div>
 
-    <!-- TELA 2: TOCADOR DE ÁUDIO -->
+    <!-- TELA 2: TRANSMISSÃO AO VIVO -->
     <div id="player-screen">
-      <button class="btn-back" id="back-btn">← Voltar para os Estilos</button>
+      <button class="btn-back" id="back-btn">← Sintonizar outro estilo</button>
 
       <div class="player-card">
+        <div class="live-badge">
+          <span class="live-dot"></span> Ao Vivo
+        </div>
+
         <div class="track-info">
-          <div class="track-title" id="current-title">Selecione uma faixa</div>
+          <div class="track-title" id="current-title">Sintonizando...</div>
           <div class="track-artist" id="current-artist">-</div>
-          <div class="track-genre" id="current-genre">Gênero</div>
+          <div class="track-genre" id="current-genre" style="display: none;">Gênero</div>
         </div>
 
         <div class="controls">
-          <button class="btn-control" id="prev-btn" title="Anterior">⏮</button>
-          <button class="btn-control btn-play" id="play-btn" title="Reproduzir/Pausar">▶</button>
-          <button class="btn-control" id="next-btn" title="Próxima">⏭</button>
+          <button class="btn-play" id="play-btn" title="Reproduzir/Pausar">▶</button>
         </div>
 
-        <div class="status-msg" id="status-text">Pronto</div>
+        <div class="status-msg" id="status-text">Conectando...</div>
       </div>
 
-      <div class="playlist-section" id="playlist-list">
-        <!-- Músicas do estilo selecionado -->
+      <div class="history-section">
+        <div class="history-title">Registro de Transmissão</div>
+        <div class="history-list" id="history-list">
+          <!-- Histórico montado via JS -->
+        </div>
       </div>
     </div>
   </div>
 
   <script>
     let playlist = [];
-    let filteredPlaylist = [];
-    let currentIndex = 0;
+    let poolPlaylist = []; // Fila aleatória sem repetição
+    let playedHistory = []; // Registro de músicas reproduzidas
+    let currentTrack = null;
+    let selectedGenreGlobal = 'Todos';
     let isPlaying = false;
     let shakaPlayer = null;
     let audioElement = null;
@@ -298,7 +344,7 @@
 
     function onError(error) {
       console.error('Erro no Shaka Player:', error);
-      document.getElementById('status-text').innerText = 'Erro ao carregar áudio.';
+      document.getElementById('status-text').innerText = 'Erro ao carregar sinal da rádio.';
     }
 
     async function loadPlaylist() {
@@ -310,11 +356,10 @@
         renderHomeGenres();
       } catch (err) {
         console.error('Erro ao carregar dados:', err);
-        document.getElementById('home-screen').innerHTML = '<p style="text-align:center; color:#888;">Erro ao carregar a playlist.</p>';
+        document.getElementById('home-screen').innerHTML = '<p style="text-align:center; color:#888;">Erro ao conectar com a rádio.</p>';
       }
     }
 
-    // Renderiza a Tela Inicial com os Cards de Gênero
     function renderHomeGenres() {
       const homeScreen = document.getElementById('home-screen');
       if (!homeScreen) return;
@@ -322,8 +367,8 @@
       const genres = [...new Set(playlist.map(item => item.genre).filter(Boolean))];
 
       let html = `
-        <div class="genre-card" onclick="selectGenre('Todos')">
-          <div class="genre-name">🎵 Ouvir todos os gêneros</div>
+        <div class="genre-card" onclick="startRadio('Todos')">
+          <div class="genre-name">📻 Ouvir todos os gêneros</div>
           <div class="genre-count">${playlist.length} faixas</div>
         </div>
       `;
@@ -331,7 +376,7 @@
       genres.forEach(genre => {
         const count = playlist.filter(item => item.genre === genre).length;
         html += `
-          <div class="genre-card" onclick="selectGenre('${genre}')">
+          <div class="genre-card" onclick="startRadio('${genre}')">
             <div class="genre-name">${genre}</div>
             <div class="genre-count">${count} faixas</div>
           </div>
@@ -341,76 +386,96 @@
       homeScreen.innerHTML = html;
     }
 
-    // Seleciona um Gênero e Abre a Tela do Player
-    function selectGenre(genre) {
-      if (genre === 'Todos') {
-        filteredPlaylist = [...playlist];
-      } else {
-        filteredPlaylist = playlist.filter(track => track.genre === genre);
-      }
+    // Inicia a rádio para o gênero escolhido
+    function startRadio(genre) {
+      selectedGenreGlobal = genre;
+      playedHistory = [];
+      
+      // Filtra músicas
+      const baseList = (genre === 'Todos') 
+        ? [...playlist] 
+        : playlist.filter(track => track.genre === genre);
 
-      // Transição de Telas
+      if (baseList.length === 0) return;
+
+      // Cria a fila aleatória
+      poolPlaylist = shuffleArray([...baseList]);
+
+      // Alterna interface
       document.getElementById('home-screen').style.display = 'none';
       document.getElementById('player-screen').style.display = 'flex';
-      document.getElementById('page-subtitle').innerText = genre === 'Todos' ? 'Tocando todos os gêneros' : `Estilo: ${genre}`;
+      document.getElementById('page-subtitle').innerText = genre === 'Todos' ? 'Sintonizado: Todos os Gêneros' : `Sintonizado: ${genre}`;
 
-      renderPlaylistUI();
-      loadTrack(0, true);
+      // Configura visibilidade do gênero
+      const genreBadge = document.getElementById('current-genre');
+      if (genre === 'Todos') {
+        genreBadge.style.display = 'inline-block';
+      } else {
+        genreBadge.style.display = 'none';
+      }
+
+      playNextRandomTrack();
     }
 
-    // Voltar para a Tela Inicial
+    // Toca a próxima música aleatória da fila
+    async function playNextRandomTrack() {
+      if (poolPlaylist.length === 0) {
+        // Recarrega e embaralha a lista quando todas já tiverem tocado
+        const baseList = (selectedGenreGlobal === 'Todos') 
+          ? [...playlist] 
+          : playlist.filter(track => track.genre === selectedGenreGlobal);
+        poolPlaylist = shuffleArray([...baseList]);
+      }
+
+      currentTrack = poolPlaylist.pop();
+      playedHistory.unshift(currentTrack); // Adiciona no início do histórico
+
+      document.getElementById('current-title').innerText = currentTrack.title || 'Sem título';
+      document.getElementById('current-artist').innerText = currentTrack.artist || 'Artista desconhecido';
+      
+      if (selectedGenreGlobal === 'Todos') {
+        document.getElementById('current-genre').innerText = currentTrack.genre || 'Geral';
+      }
+
+      document.getElementById('status-text').innerText = 'Sintonizando faixa...';
+      renderHistoryUI();
+
+      try {
+        if (currentTrack.isDash) {
+          await shakaPlayer.load(currentTrack.url);
+        } else {
+          await shakaPlayer.unload();
+          audioElement.src = currentTrack.url;
+        }
+
+        playAudio();
+        document.getElementById('status-text').innerText = 'Transmitindo ao vivo';
+      } catch (err) {
+        onError(err);
+      }
+    }
+
+    // Renderiza o Histórico de Transmissão
+    function renderHistoryUI() {
+      const container = document.getElementById('history-list');
+      if (!container) return;
+
+      container.innerHTML = playedHistory.map((track, idx) => `
+        <div class="history-item ${idx === 0 ? 'now-playing' : ''}">
+          <div class="history-item-info">
+            <div class="history-item-title">${idx === 0 ? '🔴 ' : ''}${track.title}</div>
+            <div class="history-item-artist">${track.artist}</div>
+          </div>
+          ${(selectedGenreGlobal === 'Todos' && track.genre) ? `<span class="history-tag">${track.genre}</span>` : ''}
+        </div>
+      `).join('');
+    }
+
     function showHomeScreen() {
       pauseAudio();
       document.getElementById('player-screen').style.display = 'none';
       document.getElementById('home-screen').style.display = 'flex';
       document.getElementById('page-subtitle').innerText = 'Escolha um estilo para começar a ouvir';
-    }
-
-    function renderPlaylistUI() {
-      const container = document.getElementById('playlist-list');
-      if (!container) return;
-
-      container.innerHTML = filteredPlaylist.map((track, idx) => `
-        <div class="playlist-item ${idx === currentIndex ? 'active' : ''}" onclick="loadTrack(${idx}, true)">
-          <div class="playlist-item-info">
-            <div class="playlist-item-title">${track.title}</div>
-            <div class="playlist-item-artist">${track.artist}</div>
-          </div>
-          <small style="color:#1DB954;">${track.genre || ''}</small>
-        </div>
-      `).join('');
-    }
-
-    async function loadTrack(index, autoPlay = true) {
-      if (!filteredPlaylist[index]) return;
-
-      currentIndex = index;
-      const track = filteredPlaylist[currentIndex];
-
-      document.getElementById('current-title').innerText = track.title || 'Sem título';
-      document.getElementById('current-artist').innerText = track.artist || 'Artista desconhecido';
-      document.getElementById('current-genre').innerText = track.genre || 'Geral';
-      document.getElementById('status-text').innerText = 'Carregando...';
-
-      renderPlaylistUI();
-
-      try {
-        if (track.isDash) {
-          await shakaPlayer.load(track.url);
-        } else {
-          await shakaPlayer.unload();
-          audioElement.src = track.url;
-        }
-
-        if (autoPlay) {
-          playAudio();
-        } else {
-          pauseAudio();
-        }
-        document.getElementById('status-text').innerText = autoPlay ? 'Tocando agora' : 'Pausado';
-      } catch (err) {
-        onError(err);
-      }
     }
 
     function playAudio() {
@@ -437,26 +502,22 @@
       }
     }
 
-    function nextTrack() {
-      if (filteredPlaylist.length === 0) return;
-      let nextIndex = (currentIndex + 1) % filteredPlaylist.length;
-      loadTrack(nextIndex, true);
-    }
-
-    function prevTrack() {
-      if (filteredPlaylist.length === 0) return;
-      let prevIndex = (currentIndex - 1 + filteredPlaylist.length) % filteredPlaylist.length;
-      loadTrack(prevIndex, true);
+    // Função para embaralhar array (Algoritmo Fisher-Yates)
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
     }
 
     function setupEventListeners() {
       document.getElementById('play-btn').addEventListener('click', togglePlay);
-      document.getElementById('next-btn').addEventListener('click', nextTrack);
-      document.getElementById('prev-btn').addEventListener('click', prevTrack);
       document.getElementById('back-btn').addEventListener('click', showHomeScreen);
 
+      // Quando a música atual termina, a rádio seleciona e toca a próxima automaticamente
       audioElement.addEventListener('ended', () => {
-        nextTrack();
+        playNextRandomTrack();
       });
     }
   </script>
