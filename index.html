@@ -1,575 +1,487 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    
-    <!-- Configurações PWA Mobile -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="WebRadio">
-    <meta name="theme-color" content="#121212">
-    
-    <!-- Ícone do App -->
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23121212'/><circle cx='50' cy='50' r='30' fill='%2300f2ff'/><polygon points='43,38 65,50 43,62' fill='%23121212'/></svg>">
-    
-    <!-- Manifest Embutido -->
-    <link rel="manifest" href="data:application/manifest+json;utf8,{
-        %22name%22:%22WebRadio%20App%22,
-        %22short_name%22:%22WebRadio%22,
-        %22start_url%22:%22.%22,
-        %22display%22:%22standalone%22,
-        %22background_color%22:%22%23121212%22,
-        %22theme_color%22:%22%2300f2ff%22,
-        %22icons%22:[{%22src%22:%22data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23121212'/><circle cx='50' cy='50' r='30' fill='%2300f2ff'/><polygon points='43,38 65,50 43,62' fill='%23121212'/></svg>%22,%22sizes%22:%22192x192%22,%22type%22:%22image/svg+xml%22}]
-    }">
-    
-    <title>WebRadio Mobile</title>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.5/shaka-player.compiled.js"></script>
-    
-    <style>
-        :root {
-            --accent: #00f2ff;
-            --bg-main: #121212;
-            --bg-card: #181818;
-            --text-main: #ffffff;
-            --text-muted: #888888;
-            --bottom-bar-h: 75px;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mobile Web Radio - PWA</title>
+  <link rel="manifest" href="manifest.json">
+  <theme-color content="#121212">
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            user-select: none;
-            -webkit-user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
+  <!-- Shaka Player Compiled Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.5/shaka-player.compiled.js"></script>
 
-        body {
-            background-color: var(--bg-main);
-            color: var(--text-main);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
 
-        /* Tela de Seleção de Gênero (Overlay) */
-        .start-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(18, 18, 18, 0.98);
-            backdrop-filter: blur(15px);
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 24px;
-            text-align: center;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
+    body {
+      background-color: #121212;
+      color: #FFFFFF;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      align-items: center;
+      padding: 20px;
+    }
 
-        .start-overlay.hidden {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-        }
+    header {
+      margin-top: 10px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
 
-        .genre-selector-title {
-            font-size: 22px;
-            font-weight: 800;
-            margin-bottom: 6px;
-        }
+    h1 {
+      font-size: 1.8rem;
+      color: #1DB954;
+      margin-bottom: 5px;
+    }
 
-        .genre-selector-subtitle {
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-bottom: 24px;
-        }
+    .container {
+      width: 100%;
+      max-width: 500px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
 
-        .genre-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            width: 100%;
-            max-width: 320px;
-        }
+    /* Card do Player */
+    .player-card {
+      background: #1e1e1e;
+      padding: 24px;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      text-align: center;
+    }
 
-        .genre-btn {
-            background: var(--bg-card);
-            border: 1px solid #2a2a2a;
-            color: var(--text-main);
-            padding: 14px 20px;
-            border-radius: 14px;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            transition: transform 0.2s, border-color 0.2s;
-        }
+    .track-info {
+      margin-bottom: 20px;
+    }
 
-        .genre-btn:active { transform: scale(0.97); }
+    .track-title {
+      font-size: 1.3rem;
+      font-weight: bold;
+      margin-bottom: 6px;
+      color: #fff;
+    }
 
-        .genre-btn.primary {
-            background: var(--accent);
-            color: #000;
-            border: none;
-            box-shadow: 0 0 20px rgba(0, 242, 255, 0.3);
-            margin-bottom: 5px;
-        }
+    .track-artist {
+      font-size: 1rem;
+      color: #b3b3b3;
+      margin-bottom: 4px;
+    }
 
-        /* Top Header */
-        .app-header {
-            padding: 20px 20px 12px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: rgba(18, 18, 18, 0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid #222;
-            z-index: 10;
-        }
+    .track-genre {
+      display: inline-block;
+      font-size: 0.8rem;
+      background: #333;
+      color: #1DB954;
+      padding: 4px 12px;
+      border-radius: 12px;
+      margin-top: 6px;
+    }
 
-        .app-header h1 {
-            font-size: 22px;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+    .controls {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 15px;
+      margin-top: 15px;
+    }
 
-        .badge-genre {
-            background: var(--accent);
-            color: #000;
-            font-size: 9px;
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+    button.btn-control {
+      background: #282828;
+      border: none;
+      color: #fff;
+      font-size: 1.2rem;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
 
-        /* Lista de Histórico */
-        .app-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 15px;
-            padding-bottom: calc(var(--bottom-bar-h) + 25px);
-        }
+    button.btn-control:hover {
+      background: #3e3e3e;
+    }
 
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            margin-left: 5px;
-        }
+    button.btn-control:active {
+      transform: scale(0.95);
+    }
 
-        .section-title {
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-muted);
-        }
+    button.btn-play {
+      background: #1DB954;
+      color: #000;
+      width: 65px;
+      height: 65px;
+      font-size: 1.5rem;
+    }
 
-        .change-genre-btn {
-            background: none;
-            border: none;
-            color: var(--accent);
-            font-size: 11px;
-            font-weight: 700;
-            cursor: pointer;
-        }
+    button.btn-play:hover {
+      background: #1ed760;
+    }
 
-        .history-container {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
+    /* Filtros por Gênero */
+    .genres-section {
+      background: #1e1e1e;
+      padding: 16px;
+      border-radius: 16px;
+    }
 
-        /* Item de Histórico */
-        .track-item {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            padding: 14px 16px;
-            border-radius: 12px;
-            background: var(--bg-card);
-            border: 1px solid #222;
-            animation: fadeIn 0.4s ease;
-        }
+    .genres-title {
+      font-size: 0.9rem;
+      color: #b3b3b3;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+    .genre-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
 
-        .track-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-main);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+    .genre-btn {
+      background: #282828;
+      border: 1px solid #333;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
 
-        .track-artist {
-            font-size: 12px;
-            color: var(--text-muted);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+    .genre-btn:hover {
+      background: #333;
+    }
 
-        .track-item.active {
-            border-color: var(--accent);
-            background: rgba(0, 242, 255, 0.05);
-        }
+    .genre-btn.active {
+      background: #1DB954;
+      color: #000;
+      font-weight: bold;
+      border-color: #1DB954;
+    }
 
-        .track-item.active .track-title {
-            color: var(--accent);
-        }
+    /* Lista da Playlist */
+    .playlist-section {
+      background: #1e1e1e;
+      padding: 16px;
+      border-radius: 16px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
 
-        /* Mini Player Rodapé */
-        .bottom-player {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: var(--bottom-bar-h);
-            background: rgba(22, 22, 22, 0.96);
-            backdrop-filter: blur(20px);
-            border-top: 1px solid #2a2a2a;
-            display: flex;
-            align-items: center;
-            padding: 0 18px;
-            gap: 12px;
-            box-shadow: 0 -10px 30px rgba(0,0,0,0.7);
-            z-index: 100;
-        }
+    .playlist-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      border-bottom: 1px solid #282828;
+      cursor: pointer;
+      border-radius: 8px;
+    }
 
-        .now-playing-info {
-            flex: 1;
-            overflow: hidden;
-        }
+    .playlist-item:hover {
+      background: #282828;
+    }
 
-        .now-title {
-            font-size: 13px;
-            font-weight: 700;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+    .playlist-item.active {
+      background: #282828;
+      border-left: 4px solid #1DB954;
+    }
 
-        .now-artist {
-            font-size: 11px;
-            color: var(--accent);
-            margin-top: 2px;
-        }
+    .playlist-item-info {
+      text-align: left;
+    }
 
-        .play-btn {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background: var(--accent);
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            box-shadow: 0 0 15px rgba(0, 242, 255, 0.3);
-        }
+    .playlist-item-title {
+      font-size: 0.95rem;
+      color: #fff;
+    }
 
-        .play-btn svg { width: 18px; height: 18px; fill: #000; }
+    .playlist-item-artist {
+      font-size: 0.8rem;
+      color: #b3b3b3;
+    }
 
-        .wave-box {
-            display: flex;
-            align-items: center;
-            gap: 3px;
-            height: 16px;
-        }
+    .status-msg {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #888;
+      margin-top: 10px;
+    }
 
-        .wave-bar {
-            width: 3px;
-            height: 4px;
-            background: var(--accent);
-            border-radius: 2px;
-            transition: height 0.2s;
-        }
-
-        .playing .wave-bar {
-            animation: wave 0.8s infinite ease-in-out;
-        }
-
-        .playing .wave-bar:nth-child(2) { animation-delay: 0.15s; }
-        .playing .wave-bar:nth-child(3) { animation-delay: 0.3s; }
-        .playing .wave-bar:nth-child(4) { animation-delay: 0.45s; }
-
-        @keyframes wave {
-            0%, 100% { height: 4px; }
-            50% { height: 16px; }
-        }
-
-        audio { display: none; }
-    </style>
+    /* Ocultar a tag HTML audio original */
+    audio {
+      display: none;
+    }
+  </style>
 </head>
 <body>
 
-    <!-- Overlay de Seleção de Gêneros -->
-    <div class="start-overlay" id="startOverlay">
-        <div class="genre-selector-title">Escolha o Estilo</div>
-        <div class="genre-selector-subtitle">Selecione o gênero para iniciar a rádio ao vivo</div>
+  <header>
+    <h1>📻 Web Rádio PWA</h1>
+  </header>
+
+  <div class="container">
+    <!-- Elemento Audio para o Shaka Player -->
+    <audio id="audio-element" controls></audio>
+
+    <!-- Card Principal do Tocador -->
+    <div class="player-card">
+      <div class="track-info">
+        <div class="track-title" id="current-title">Carregando rádio...</div>
+        <div class="track-artist" id="current-artist">-</div>
+        <div class="track-genre" id="current-genre">Gênero</div>
+      </div>
+
+      <div class="controls">
+        <button class="btn-control" id="prev-btn" title="Anterior">⏮</button>
+        <button class="btn-control btn-play" id="play-btn" title="Reproduzir/Pausar">▶</button>
+        <button class="btn-control" id="next-btn" title="Próxima">⏭</button>
+      </div>
+
+      <div class="status-msg" id="status-text">Buscando playlist...</div>
+    </div>
+
+    <!-- Filtros de Gênero -->
+    <div class="genres-section">
+      <div class="genres-title">Filtros por Gênero</div>
+      <div class="genre-buttons" id="genre-filters">
+        <!-- Botões serão inseridos dinamicamente pelo JS -->
+      </div>
+    </div>
+
+    <!-- Lista da Playlist Atual -->
+    <div class="genres-section">
+      <div class="genres-title">Fila de Reprodução</div>
+      <div class="playlist-section" id="playlist-list">
+        <!-- Itens da lista serão inseridos dinamicamente -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Variáveis Globais
+    let playlist = [];
+    let filteredPlaylist = [];
+    let currentIndex = 0;
+    let isPlaying = false;
+    let shakaPlayer = null;
+    let audioElement = null;
+
+    // Inicialização da Aplicação
+    document.addEventListener('DOMContentLoaded', () => {
+      audioElement = document.getElementById('audio-element');
+      setupShakaPlayer();
+      setupEventListeners();
+      loadPlaylist();
+    });
+
+    // Configuração do Shaka Player
+    function setupShakaPlayer() {
+      shaka.polyfill.installAll();
+      if (shaka.Player.isBrowserSupported()) {
+        shakaPlayer = new shaka.Player(audioElement);
+        shakaPlayer.addEventListener('error', onErrorEvent);
+      } else {
+        console.error('Navegador não suporta Shaka Player');
+        document.getElementById('status-text').innerText = 'Erro: Navegador incompatível.';
+      }
+    }
+
+    function onErrorEvent(event) {
+      onError(event.detail);
+    }
+
+    function onError(error) {
+      console.error('Erro no Shaka Player:', error.code, error);
+      document.getElementById('status-text').innerText = 'Erro ao tocar faixa.';
+    }
+
+    // Carregar Playlist via JSON (Evitando Cache)
+    async function loadPlaylist() {
+      const statusText = document.getElementById('status-text');
+      try {
+        statusText.innerText = 'Carregando playlist...';
         
-        <div class="genre-grid" id="genreButtons"></div>
-    </div>
+        // v=Timestamp impede que o navegador use versão cacheada antiga
+        const response = await fetch('playlist.json?v=' + new Date().getTime());
+        
+        if (!response.ok) {
+          throw new Error('Não foi possível ler playlist.json (Status: ' + response.status + ')');
+        }
 
-    <!-- Header do App -->
-    <header class="app-header">
-        <h1>WebRadio <span class="badge-genre" id="activeGenreBadge">TODOS</span></h1>
-    </header>
+        playlist = await response.json();
 
-    <!-- Histórico de Músicas Tocadas -->
-    <main class="app-content">
-        <div class="section-header">
-            <span class="section-title">Tocadas Recentemente</span>
-            <button class="change-genre-btn" onclick="openGenreSelector()">Trocar Gênero</button>
-        </div>
-        <div class="history-container" id="historyItems"></div>
-    </main>
+        if (!Array.isArray(playlist) || playlist.length === 0) {
+          statusText.innerText = 'A playlist está vazia.';
+          return;
+        }
 
-    <!-- Mini Player Rodapé -->
-    <div class="bottom-player" id="playerBar">
-        <button class="play-btn" onclick="togglePlay()">
-            <svg id="playIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        filteredPlaylist = [...playlist];
+        renderGenres();
+        renderPlaylistUI();
+        loadTrack(0, false); // Prepara primeira música sem dar autoplay imediato
+
+        statusText.innerText = 'Pronto para tocar!';
+      } catch (err) {
+        console.error('Falha ao carregar playlist:', err);
+        statusText.innerText = 'Erro ao carregar lista de músicas.';
+      }
+    }
+
+    // Renderizar Botões de Gêneros Dinamicamente
+    function renderGenres() {
+      const container = document.getElementById('genre-filters');
+      if (!container) return;
+
+      // Pega todos os gêneros únicos cadastrados
+      const uniqueGenres = ['Todos', ...new Set(playlist.map(item => item.genre).filter(Boolean))];
+
+      container.innerHTML = uniqueGenres.map(genre => `
+        <button class="genre-btn ${genre === 'Todos' ? 'active' : ''}" data-genre="${genre}">
+          ${genre === 'Todos' ? 'Ouvir todos os gêneros' : genre}
         </button>
+      `).join('');
 
-        <div class="now-playing-info">
-            <div class="now-title" id="trackTitle">Sintonizando...</div>
-            <div class="now-artist" id="trackArtist">Aguarde</div>
+      // Adiciona clique aos novos botões
+      container.querySelectorAll('.genre-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const selectedGenre = e.target.getAttribute('data-genre');
+          
+          container.querySelectorAll('.genre-btn').forEach(b => b.classList.remove('active'));
+          e.target.classList.add('active');
+          
+          filterPlaylist(selectedGenre);
+        });
+      });
+    }
+
+    // Filtrar Playlist
+    function filterPlaylist(genre) {
+      if (genre === 'Todos') {
+        filteredPlaylist = [...playlist];
+      } else {
+        filteredPlaylist = playlist.filter(track => track.genre === genre);
+      }
+
+      renderPlaylistUI();
+
+      if (filteredPlaylist.length > 0) {
+        loadTrack(0, true); // Toca a primeira do novo gênero escolhido
+      }
+    }
+
+    // Renderizar Lista de Músicas na Tela
+    function renderPlaylistUI() {
+      const container = document.getElementById('playlist-list');
+      if (!container) return;
+
+      container.innerHTML = filteredPlaylist.map((track, idx) => `
+        <div class="playlist-item ${idx === currentIndex ? 'active' : ''}" onclick="selectTrack(${idx})">
+          <div class="playlist-item-info">
+            <div class="playlist-item-title">${track.title}</div>
+            <div class="playlist-item-artist">${track.artist}</div>
+          </div>
+          <small style="color:#1DB954;">${track.genre || ''}</small>
         </div>
+      `).join('');
+    }
 
-        <div class="wave-box" id="waveBox">
-            <div class="wave-bar"></div>
-            <div class="wave-bar"></div>
-            <div class="wave-bar"></div>
-            <div class="wave-bar"></div>
-        </div>
-    </div>
+    function selectTrack(index) {
+      loadTrack(index, true);
+    }
 
-    <audio id="audioEngine"></audio>
+    // Carregar e Tocar Música Específica
+    async function loadTrack(index, autoPlay = true) {
+      if (!filteredPlaylist[index]) return;
 
-    <script>
-        let masterPlaylist = [];
-        let activePlaylist = [];
-        let playedHistory = [];
-        let currentIndex = -1;
-        let selectedGenre = "ALL";
-        let shakaPlayer;
+      currentIndex = index;
+      const track = filteredPlaylist[currentIndex];
 
-        const audio = document.getElementById('audioEngine');
-        const playIcon = document.getElementById('playIcon');
-        const playerBar = document.getElementById('playerBar');
+      document.getElementById('current-title').innerText = track.title || 'Sem título';
+      document.getElementById('current-artist').innerText = track.artist || 'Artista desconhecido';
+      document.getElementById('current-genre').innerText = track.genre || 'Geral';
+      document.getElementById('status-text').innerText = `Carregando faixa...`;
 
-        async function initApp() {
-            shaka.polyfill.installAll();
-            shakaPlayer = new shaka.Player(audio);
+      renderPlaylistUI();
 
-            // Carrega dinamicamente a playlist do arquivo playlist.json
-            try {
-                const response = await fetch('playlist.json');
-                masterPlaylist = await response.json();
-            } catch (e) {
-                console.error("Erro ao carregar playlist.json:", e);
-                masterPlaylist = [];
-            }
-
-            renderGenreButtons();
-            setupBackButtonPrevention();
-            setupMediaSessionHandlers();
-
-            audio.onended = () => {
-                playRandomTrack();
-            };
+      try {
+        if (track.isDash) {
+          // Carregamento via Shaka Player para streams DASH (.mpd)
+          await shakaPlayer.load(track.url);
+        } else {
+          // Carregamento direto para arquivos de áudio comuns (.m4a, .mp3)
+          await shakaPlayer.unload(); // Descarrega sessão DASH se houver
+          audioElement.src = track.url;
         }
 
-        /* --- PREVENÇÃO DE FECHAMENTO PELO BOTÃO VOLTAR --- */
-        function setupBackButtonPrevention() {
-            history.pushState({ page: 'app' }, "", location.href);
-
-            window.addEventListener('popstate', (event) => {
-                const overlay = document.getElementById('startOverlay');
-                if (!overlay.classList.contains('hidden')) {
-                    overlay.classList.add('hidden');
-                }
-                
-                history.pushState({ page: 'app' }, "", location.href);
-            });
+        if (autoPlay) {
+          playAudio();
+        } else {
+          pauseAudio();
         }
+        document.getElementById('status-text').innerText = autoPlay ? 'Tocando agora' : 'Pausado';
+      } catch (err) {
+        onError(err);
+      }
+    }
 
-        /* --- MEDIA SESSION API (Notificações / Controles de Tela Bloqueada) --- */
-        function updateMediaSession(track) {
-            if ('mediaSession' in navigator) {
-                navigator.mediaSession.metadata = new MediaMetadata({
-                    title: track.title,
-                    artist: track.artist,
-                    album: 'WebRadio Live'
-                });
-            }
-        }
+    // Controles de Reprodução
+    function playAudio() {
+      audioElement.play().then(() => {
+        isPlaying = true;
+        document.getElementById('play-btn').innerText = '⏸';
+      }).catch(err => {
+        console.warn('Autoplay bloqueado pelo navegador:', err);
+        isPlaying = false;
+        document.getElementById('play-btn').innerText = '▶';
+      });
+    }
 
-        function setupMediaSessionHandlers() {
-            if ('mediaSession' in navigator) {
-                navigator.mediaSession.setActionHandler('play', () => togglePlay());
-                navigator.mediaSession.setActionHandler('pause', () => togglePlay());
-                navigator.mediaSession.setActionHandler('nexttrack', () => playRandomTrack());
-            }
-        }
+    function pauseAudio() {
+      audioElement.pause();
+      isPlaying = false;
+      document.getElementById('play-btn').innerText = '▶';
+    }
 
-        function renderGenreButtons() {
-            const container = document.getElementById('genreButtons');
-            container.innerHTML = '';
+    function togglePlay() {
+      if (isPlaying) {
+        pauseAudio();
+      } else {
+        playAudio();
+      }
+    }
 
-            const allBtn = document.createElement('button');
-            allBtn.className = 'genre-btn primary';
-            allBtn.innerHTML = `<span>Ouvir Todos os Gêneros</span> ➔`;
-            allBtn.onclick = () => selectGenreAndStart("ALL");
-            container.appendChild(allBtn);
+    function nextTrack() {
+      if (filteredPlaylist.length === 0) return;
+      let nextIndex = (currentIndex + 1) % filteredPlaylist.length;
+      loadTrack(nextIndex, true);
+    }
 
-            const genres = [...new Set(masterPlaylist.map(item => item.genre))];
-            
-            genres.forEach(genre => {
-                const btn = document.createElement('button');
-                btn.className = 'genre-btn';
-                btn.innerHTML = `<span>${genre}</span> ➔`;
-                btn.onclick = () => selectGenreAndStart(genre);
-                container.appendChild(btn);
-            });
-        }
+    function prevTrack() {
+      if (filteredPlaylist.length === 0) return;
+      let prevIndex = (currentIndex - 1 + filteredPlaylist.length) % filteredPlaylist.length;
+      loadTrack(prevIndex, true);
+    }
 
-        function openGenreSelector() {
-            document.getElementById('startOverlay').classList.remove('hidden');
-        }
+    // Event Listeners dos Botões
+    function setupEventListeners() {
+      document.getElementById('play-btn').addEventListener('click', togglePlay);
+      document.getElementById('next-btn').addEventListener('click', nextTrack);
+      document.getElementById('prev-btn').addEventListener('click', prevTrack);
 
-        function selectGenreAndStart(genre) {
-            selectedGenre = genre;
-            document.getElementById('activeGenreBadge').innerText = genre === "ALL" ? "TODOS" : genre;
-            
-            if (genre === "ALL") {
-                activePlaylist = [...masterPlaylist];
-            } else {
-                activePlaylist = masterPlaylist.filter(item => item.genre === genre);
-            }
-
-            playedHistory = [];
-            currentIndex = -1;
-            document.getElementById('historyItems').innerHTML = '';
-
-            document.getElementById('startOverlay').classList.add('hidden');
-            
-            audio.play().catch(() => {});
-            playRandomTrack();
-        }
-
-        function playRandomTrack() {
-            if (activePlaylist.length === 0) return;
-
-            let nextIndex;
-            if (activePlaylist.length > 1) {
-                do {
-                    nextIndex = Math.floor(Math.random() * activePlaylist.length);
-                } while (nextIndex === currentIndex);
-            } else {
-                nextIndex = 0;
-            }
-
-            currentIndex = nextIndex;
-            loadTrack(currentIndex);
-        }
-
-        async function loadTrack(index) {
-            const track = activePlaylist[index];
-            document.getElementById('trackTitle').innerText = track.title;
-            document.getElementById('trackArtist').innerText = track.artist;
-
-            addTrackToHistory(track);
-            updateMediaSession(track);
-
-            try {
-                if (track.isDash) {
-                    await shakaPlayer.load(track.url);
-                } else {
-                    await shakaPlayer.unload();
-                    audio.src = track.url;
-                }
-
-                await audio.play();
-                setUIState(true);
-            } catch (e) {
-                console.error("Erro ao carregar faixa, sorteando outra...", e);
-                setTimeout(playRandomTrack, 1000);
-            }
-        }
-
-        function addTrackToHistory(track) {
-            playedHistory.unshift(track);
-            renderHistoryUI();
-        }
-
-        function renderHistoryUI() {
-            const container = document.getElementById('historyItems');
-            container.innerHTML = '';
-
-            playedHistory.forEach((item, i) => {
-                const card = document.createElement('div');
-                card.className = `track-item ${i === 0 ? 'active' : ''}`;
-                
-                const artistSubtitle = selectedGenre === "ALL" 
-                    ? `${item.artist} • ${item.genre}` 
-                    : item.artist;
-
-                card.innerHTML = `
-                    <div class="track-title">${item.title}</div>
-                    <div class="track-artist">${artistSubtitle}</div>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        function togglePlay() {
-            if (audio.paused) {
-                audio.play();
-                setUIState(true);
-            } else {
-                audio.pause();
-                setUIState(false);
-            }
-        }
-
-        function setUIState(isPlaying) {
-            if (isPlaying) {
-                playIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
-                playerBar.classList.add('playing');
-                if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
-            } else {
-                playIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
-                playerBar.classList.remove('playing');
-                if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', initApp);
-    </script>
+      // Passar para a próxima música automaticamente ao terminar
+      audioElement.addEventListener('ended', () => {
+        nextTrack();
+      });
+    }
+  </script>
 </body>
 </html>
