@@ -57,7 +57,7 @@
             overflow: hidden;
         }
 
-        /* Tela Splash de Ativação do Áudio */
+        /* Tela de Seleção de Gênero (Overlay) */
         .start-overlay {
             position: fixed;
             top: 0;
@@ -71,8 +71,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            gap: 20px;
-            padding: 30px;
+            padding: 24px;
             text-align: center;
             transition: opacity 0.3s ease, visibility 0.3s ease;
         }
@@ -83,23 +82,50 @@
             pointer-events: none;
         }
 
-        .start-btn {
+        .genre-selector-title {
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+
+        .genre-selector-subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+
+        .genre-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+            max-width: 320px;
+        }
+
+        .genre-btn {
+            background: var(--bg-card);
+            border: 1px solid #2a2a2a;
+            color: var(--text-main);
+            padding: 14px 20px;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .genre-btn:active { transform: scale(0.97); }
+
+        .genre-btn.primary {
             background: var(--accent);
             color: #000;
             border: none;
-            padding: 16px 36px;
-            border-radius: 50px;
-            font-size: 16px;
-            font-weight: 800;
-            cursor: pointer;
-            box-shadow: 0 0 25px rgba(0, 242, 255, 0.4);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: transform 0.2s;
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.3);
+            margin-bottom: 5px;
         }
-
-        .start-btn:active { transform: scale(0.95); }
 
         /* Top Header */
         .app-header {
@@ -122,23 +148,31 @@
             gap: 8px;
         }
 
-        .badge-live {
-            background: #ff0055;
-            color: #fff;
+        .badge-genre {
+            background: var(--accent);
+            color: #000;
             font-size: 9px;
-            padding: 3px 7px;
+            padding: 3px 8px;
             border-radius: 12px;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
-        /* Lista Clean */
+        /* Lista de Histórico */
         .app-content {
             flex: 1;
             overflow-y: auto;
             padding: 15px;
             padding-bottom: calc(var(--bottom-bar-h) + 25px);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            margin-left: 5px;
         }
 
         .section-title {
@@ -147,17 +181,24 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             color: var(--text-muted);
-            margin-bottom: 12px;
-            margin-left: 5px;
         }
 
-        .playlist-container {
+        .change-genre-btn {
+            background: none;
+            border: none;
+            color: var(--accent);
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .history-container {
             display: flex;
             flex-direction: column;
             gap: 8px;
         }
 
-        /* Card Simplificado */
+        /* Item de Histórico (Música Tocada) */
         .track-item {
             display: flex;
             flex-direction: column;
@@ -166,7 +207,12 @@
             border-radius: 12px;
             background: var(--bg-card);
             border: 1px solid #222;
-            transition: border-color 0.2s, background 0.2s;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .track-title {
@@ -195,7 +241,7 @@
             color: var(--accent);
         }
 
-        /* Mini Player Fixo no Rodapé */
+        /* Mini Player Rodapé */
         .bottom-player {
             position: fixed;
             bottom: 0;
@@ -248,7 +294,6 @@
 
         .play-btn svg { width: 18px; height: 18px; fill: #000; }
 
-        /* Ondas Sonoras */
         .wave-box {
             display: flex;
             align-items: center;
@@ -282,25 +327,30 @@
 </head>
 <body>
 
-    <!-- Overlay de Ativação Manual do Áudio -->
+    <!-- Overlay de Seleção de Gêneros -->
     <div class="start-overlay" id="startOverlay">
-        <h2 style="font-size: 24px; font-weight: 800;">WebRadio App</h2>
-        <p style="font-size: 14px; color: #888;">Toque para sintonizar e iniciar a programação ao vivo.</p>
-        <button class="start-btn" onclick="startAppWithUserGesture()">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="#000"><path d="M8 5v14l11-7z"/></svg>
-            OUVIR AGORA
-        </button>
+        <div class="genre-selector-title">Escolha o Estilo</div>
+        <div class="genre-selector-subtitle">Selecione o gênero para iniciar a rádio ao vivo</div>
+        
+        <div class="genre-grid" id="genreButtons">
+            <!-- Botões de gênero gerados dinamicamente -->
+        </div>
     </div>
 
     <!-- Header do App -->
     <header class="app-header">
-        <h1>WebRadio <span class="badge-live">Ao Vivo</span></h1>
+        <h1>WebRadio <span class="badge-genre" id="activeGenreBadge">TODOS</span></h1>
     </header>
 
-    <!-- Playlist -->
+    <!-- Histórico de Músicas Tocadas -->
     <main class="app-content">
-        <div class="section-title">Programação</div>
-        <div class="playlist-container" id="playlistItems"></div>
+        <div class="section-header">
+            <span class="section-title">Tocadas Recentemente</span>
+            <button class="change-genre-btn" onclick="openGenreSelector()">Trocar Gênero</button>
+        </div>
+        <div class="history-container" id="historyItems">
+            <!-- As músicas que forem tocadas aparecerão aqui -->
+        </div>
     </main>
 
     <!-- Mini Player Rodapé -->
@@ -325,52 +375,65 @@
     <audio id="audioEngine"></audio>
 
     <script>
-        const playlist = [
+        // Playlist com tag de gênero (genre)
+        const masterPlaylist = [
             {
                 title: "Hip Hop Journal Episode 106 w",
                 artist: "DJ Stikmand",
+		genre: "Hip-Hop & Rap",
                 url: "https://dl.mixcloud.stream/secure/c/m4a/64/c/5/0/1/3227-e125-4f71-8f0e-1385ceb2e079.m4a?sig=_xKR0Y1UF2g9dMd2HYwWOg",
                 isDash: true
             },
             {
                 title: "The Up In Smoke Madd Tour Mix - Pt 1",
                 artist: "Dailey Maddawg",
-                url: "https://dl.mixcloud.stream/secure/c/m4a/64/c/7/d/b/d50a-85a7-4463-8fbc-8bfd07672c56.m4a?sig=szJXEWTyLHy2RxU3ewcQ8Q",
+                genre: "Hip-Hop & Rap",
+		url: "https://dl.mixcloud.stream/secure/c/m4a/64/c/7/d/b/d50a-85a7-4463-8fbc-8bfd07672c56.m4a?sig=szJXEWTyLHy2RxU3ewcQ8Q",
                 isDash: false
             },
             {
                 title: "MiXturada",
                 artist: "Gimenes Grooveria",
+		genre: "Hip-Hop & Rap",
                 url: "https://dl.mixcloud.stream/secure/c/m4a/64/6/e/3/8/01b4-d881-4a02-b618-a5b2b8f252e4.m4a?sig=l3UhlXVp23zNTklmvuiiNA",
                 isDash: false
             },
 	    {
                 title: "Chicos No Samba",
                 artist: "Gimenes Grooveria",
+		genre: "Samba & MPB",
                 url: "https://dl.mixcloud.stream/secure/c/m4a/64/8/c/6/1/b85b-70cc-41b3-a161-8bc6fc722289.m4a?sig=2-G0YLXnoVSZlrHTX27JFQ",
                 isDash: false
             },
 	    {
                 title: "Jorges",
                 artist: "Gimenes Grooveria",
-                url: "https://dl.mixcloud.stream/secure/c/m4a/64/9/c/2/f/ef45-8b98-402c-bee3-ed07afd49ae8.m4a?sig=iAr9NwruaI5HlXceCUm1ww",
+                genre: "Samba & MPB",
+		url: "https://dl.mixcloud.stream/secure/c/m4a/64/9/c/2/f/ef45-8b98-402c-bee3-ed07afd49ae8.m4a?sig=iAr9NwruaI5HlXceCUm1ww",
                 isDash: false
             },
 	    {
                 title: "2000s Rock",
                 artist: "Deezer",
-                url: "https://dl.mixcloud.stream/secure/c/m4a/64/a/3/0/2/f700-3325-4d37-bfd3-80afdda3f4f6.m4a?sig=wQTGgAX_pO23f46Uv3rEAQ",
+                genre: "Rock",
+		url: "https://dl.mixcloud.stream/secure/c/m4a/64/a/3/0/2/f700-3325-4d37-bfd3-80afdda3f4f6.m4a?sig=wQTGgAX_pO23f46Uv3rEAQ",
                 isDash: false
             },
             {
                 title: "Bravus Vol. 1",
                 artist: "Samba em Família",
-                url: "https://dl.mixcloud.stream/secure/c/m4a/64/c/b/3/6/f4c8-e919-4ccc-96a7-254469bd2c65.m4a?sig=lL3zIWWikf-M8-kVrGUDvA",
+                genre: "Samba & MPB",
+		url: "https://dl.mixcloud.stream/secure/c/m4a/64/c/b/3/6/f4c8-e919-4ccc-96a7-254469bd2c65.m4a?sig=lL3zIWWikf-M8-kVrGUDvA",
                 isDash: false
-            }        ];
+            }  
+        ];
 
+        let activePlaylist = [];
+        let playedHistory = [];
         let currentIndex = -1;
+        let selectedGenre = "ALL";
         let shakaPlayer;
+
         const audio = document.getElementById('audioEngine');
         const playIcon = document.getElementById('playIcon');
         const playerBar = document.getElementById('playerBar');
@@ -379,29 +442,69 @@
             shaka.polyfill.installAll();
             shakaPlayer = new shaka.Player(audio);
 
-            renderPlaylistUI();
+            renderGenreButtons();
 
             audio.onended = () => {
                 playRandomTrack();
             };
         }
 
-        async function startAppWithUserGesture() {
-            // Esconde a tela splash de ativeção
+        function renderGenreButtons() {
+            const container = document.getElementById('genreButtons');
+            container.innerHTML = '';
+
+            // Botão Ouvir Tudo
+            const allBtn = document.createElement('button');
+            allBtn.className = 'genre-btn primary';
+            allBtn.innerHTML = `<span>Ouvir Todos os Gêneros</span> ➔`;
+            allBtn.onclick = () => selectGenreAndStart("ALL");
+            container.appendChild(allBtn);
+
+            // Mapeia gêneros únicos
+            const genres = [...new Set(masterPlaylist.map(item => item.genre))];
+            
+            genres.forEach(genre => {
+                const btn = document.createElement('button');
+                btn.className = 'genre-btn';
+                btn.innerHTML = `<span>${genre}</span> ➔`;
+                btn.onclick = () => selectGenreAndStart(genre);
+                container.appendChild(btn);
+            });
+        }
+
+        function openGenreSelector() {
+            document.getElementById('startOverlay').classList.remove('hidden');
+        }
+
+        function selectGenreAndStart(genre) {
+            selectedGenre = genre;
+            document.getElementById('activeGenreBadge').innerText = genre === "ALL" ? "TODOS" : genre;
+            
+            // Filtra a playlist de acordo com o gênero escolhido
+            if (genre === "ALL") {
+                activePlaylist = [...masterPlaylist];
+            } else {
+                activePlaylist = masterPlaylist.filter(item => item.genre === genre);
+            }
+
+            // Reseta histórico e índice
+            playedHistory = [];
+            currentIndex = -1;
+            document.getElementById('historyItems').innerHTML = '';
+
             document.getElementById('startOverlay').classList.add('hidden');
             
-            // Destrava o áudio no contexto do navegador
             audio.play().catch(() => {});
-
-            // Sorteia e toca a primeira faixa imediatamente
             playRandomTrack();
         }
 
         function playRandomTrack() {
+            if (activePlaylist.length === 0) return;
+
             let nextIndex;
-            if (playlist.length > 1) {
+            if (activePlaylist.length > 1) {
                 do {
-                    nextIndex = Math.floor(Math.random() * playlist.length);
+                    nextIndex = Math.floor(Math.random() * activePlaylist.length);
                 } while (nextIndex === currentIndex);
             } else {
                 nextIndex = 0;
@@ -412,11 +515,12 @@
         }
 
         async function loadTrack(index) {
-            const track = playlist[index];
+            const track = activePlaylist[index];
             document.getElementById('trackTitle').innerText = track.title;
             document.getElementById('trackArtist').innerText = track.artist;
 
-            updatePlaylistHighlight();
+            // Registra a faixa tocada no histórico
+            addTrackToHistory(track);
 
             try {
                 if (track.isDash) {
@@ -432,6 +536,27 @@
                 console.error("Erro ao carregar faixa, sorteando outra...", e);
                 setTimeout(playRandomTrack, 1000);
             }
+        }
+
+        function addTrackToHistory(track) {
+            // Insere no topo do histórico
+            playedHistory.unshift(track);
+            renderHistoryUI();
+        }
+
+        function renderHistoryUI() {
+            const container = document.getElementById('historyItems');
+            container.innerHTML = '';
+
+            playedHistory.forEach((item, i) => {
+                const card = document.createElement('div');
+                card.className = `track-item ${i === 0 ? 'active' : ''}`;
+                card.innerHTML = `
+                    <div class="track-title">${item.title}</div>
+                    <div class="track-artist">${item.artist} • ${item.genre}</div>
+                `;
+                container.appendChild(card);
+            });
         }
 
         function togglePlay() {
@@ -452,32 +577,6 @@
                 playIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
                 playerBar.classList.remove('playing');
             }
-        }
-
-        function renderPlaylistUI() {
-            const container = document.getElementById('playlistItems');
-            container.innerHTML = '';
-
-            playlist.forEach((item, i) => {
-                const card = document.createElement('div');
-                card.className = 'track-item';
-                card.id = `track-item-${i}`;
-                card.innerHTML = `
-                    <div class="track-title">${item.title}</div>
-                    <div class="track-artist">${item.artist}</div>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        function updatePlaylistHighlight() {
-            playlist.forEach((_, i) => {
-                const el = document.getElementById(`track-item-${i}`);
-                if (el) {
-                    if (i === currentIndex) el.classList.add('active');
-                    else el.classList.remove('active');
-                }
-            });
         }
 
         document.addEventListener('DOMContentLoaded', initApp);
