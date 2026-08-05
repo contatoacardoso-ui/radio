@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Admin - WebRadio</title>
+    <style>
+        :root {
+            --accent: #00f2ff;
+            --bg-main: #121212;
+            --bg-card: #181818;
+            --text-main: #ffffff;
+            --text-muted: #888888;
+            --danger: #ff4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Modal de Autenticação */
+        .auth-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: #121212;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            z-index: 999;
+        }
+
+        .auth-overlay.hidden { display: none; }
+
+        h1, h2 { margin-bottom: 15px; }
+        
+        .form-group {
+            margin-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        label {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        input, select {
+            background: var(--bg-card);
+            border: 1px solid #333;
+            color: var(--text-main);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        input:focus { border-color: var(--accent); }
+
+        .checkbox-group {
+            flex-direction: row;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .btn {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 5px;
+        }
+
+        .btn:active { transform: scale(0.98); }
+
+        .btn-secondary {
+            background: #2a2a2a;
+            color: var(--text-main);
+            margin-top: 10px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid #222;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .track-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .track-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-card);
+            border: 1px solid #222;
+            padding: 12px 15px;
+            border-radius: 8px;
+        }
+
+        .track-info-title { font-weight: bold; font-size: 14px; }
+        .track-info-sub { font-size: 12px; color: var(--text-muted); }
+
+        .btn-del {
+            background: none;
+            border: none;
+            color: var(--danger);
+            font-weight: bold;
+            cursor: pointer;
+            padding: 5px 10px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            background: #000;
+            color: var(--accent);
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 11px;
+            resize: none;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Lock Screen -->
+    <div class="auth-overlay" id="authOverlay">
+        <h2>Acesso Restrito</h2>
+        <div class="form-group" style="width: 100%; max-width: 280px;">
+            <input type="password" id="pinInput" placeholder="Digite a Senha Admin">
+            <button class="btn" onclick="checkAuth()">Entrar</button>
+        </div>
+    </div>
+
+    <!-- Interface Admin -->
+    <h2>Gerenciador de Músicas</h2>
+
+    <div class="card">
+        <h3>Adicionar Nova Faixa</h3>
+        <br>
+        <div class="form-group">
+            <label>Título do Programa / Música</label>
+            <input type="text" id="title" placeholder="Ex: Chicos No Samba">
+        </div>
+        <div class="form-group">
+            <label>Artista / DJ</label>
+            <input type="text" id="artist" placeholder="Ex: Gimenes Grooveria">
+        </div>
+        <div class="form-group">
+            <label>Gênero</label>
+            <input type="text" id="genre" placeholder="Ex: Samba & MPB">
+        </div>
+        <div class="form-group">
+            <label>URL do Áudio (.m4a ou .mpd)</label>
+            <input type="text" id="url" placeholder="https://...">
+        </div>
+        <div class="form-group checkbox-group">
+            <input type="checkbox" id="isDash">
+            <label for="isDash" style="text-transform: none; color: #fff;">É stream DASH (.mpd)?</label>
+        </div>
+        <button class="btn" onclick="addTrack()">+ Adicionar à Lista</button>
+    </div>
+
+    <h3>Playlist Atual (<span id="count">0</span>)</h3>
+    <br>
+    <div class="track-list" id="trackList"></div>
+
+    <br><hr style="border-color: #222;"><br>
+
+    <div class="card">
+        <h3>Exportar Alterações</h3>
+        <p style="font-size: 12px; color: var(--text-muted); margin-top: 5px;">
+            Clique no botão abaixo para copiar o JSON e substitua o conteúdo do arquivo <b>playlist.json</b> no seu GitHub.
+        </p>
+        <button class="btn btn-secondary" onclick="copyJSON()">Copiar JSON Atualizado</button>
+        <textarea id="jsonOutput" readonly></textarea>
+    </div>
+
+    <script>
+        const ADMIN_PIN = "1234"; // ALTERE SUA SENHA AQUI
+        let playlist = [];
+
+        function checkAuth() {
+            const input = document.getElementById('pinInput').value;
+            if (input === ADMIN_PIN) {
+                document.getElementById('authOverlay').classList.add('hidden');
+                loadInitialData();
+            } else {
+                alert('Senha incorreta!');
+            }
+        }
+
+        async function loadInitialData() {
+            try {
+                const res = await fetch('playlist.json');
+                playlist = await res.json();
+            } catch (e) {
+                playlist = [];
+            }
+            renderList();
+        }
+
+        function renderList() {
+            const listEl = document.getElementById('trackList');
+            document.getElementById('count').innerText = playlist.length;
+            listEl.innerHTML = '';
+
+            playlist.forEach((track, index) => {
+                const item = document.createElement('div');
+                item.className = 'track-item';
+                item.innerHTML = `
+                    <div>
+                        <div class="track-info-title">${track.title}</div>
+                        <div class="track-info-sub">${track.artist} • ${track.genre}</div>
+                    </div>
+                    <button class="btn-del" onclick="removeTrack(${index})">Remover</button>
+                `;
+                listEl.appendChild(item);
+            });
+
+            document.getElementById('jsonOutput').value = JSON.stringify(playlist, null, 2);
+        }
+
+        function addTrack() {
+            const title = document.getElementById('title').value.trim();
+            const artist = document.getElementById('artist').value.trim();
+            const genre = document.getElementById('genre').value.trim();
+            const url = document.getElementById('url').value.trim();
+            const isDash = document.getElementById('isDash').checked;
+
+            if (!title || !artist || !genre || !url) {
+                alert('Preencha todos os campos!');
+                return;
+            }
+
+            playlist.push({ title, artist, genre, url, isDash });
+            renderList();
+
+            // Limpa formulário
+            document.getElementById('title').value = '';
+            document.getElementById('artist').value = '';
+            document.getElementById('genre').value = '';
+            document.getElementById('url').value = '';
+            document.getElementById('isDash').checked = false;
+        }
+
+        function removeTrack(index) {
+            if (confirm('Deseja remover esta faixa?')) {
+                playlist.splice(index, 1);
+                renderList();
+            }
+        }
+
+        function copyJSON() {
+            const copyText = document.getElementById("jsonOutput");
+            copyText.select();
+            document.execCommand("copy");
+            alert("Código JSON copiado com sucesso! Agora vá no seu GitHub e cole dentro do arquivo playlist.json.");
+        }
+    </script>
+</body>
+</html>
