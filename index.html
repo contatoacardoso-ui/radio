@@ -3,140 +3,159 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mobile Web Radio</title>
+  <title>Web Rádio</title>
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#121212">
+  <meta name="theme-color" content="#18181b">
 
   <!-- Shaka Player -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.5/shaka-player.compiled.js"></script>
 
   <style>
+    :root {
+      --bg-color: #09090b;
+      --card-bg: #18181b;
+      --card-border: #27272a;
+      --card-hover: #202024;
+      --text-main: #f4f4f5;
+      --text-muted: #a1a1aa;
+      --accent: #e4e4e7;
+      --accent-muted: #71717a;
+      --live-indicator: #e11d48;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
-      background-color: #121212;
-      color: #FFFFFF;
+      background-color: var(--bg-color);
+      color: var(--text-main);
       display: flex;
       flex-direction: column;
       align-items: center;
       min-height: 100vh;
-      padding: 20px;
+      padding: 24px 16px;
     }
 
     header {
       margin-top: 10px;
-      margin-bottom: 25px;
+      margin-bottom: 32px;
       text-align: center;
     }
 
     h1 {
-      font-size: 1.8rem;
-      color: #1DB954;
-      margin-bottom: 5px;
+      font-size: 1.5rem;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      color: var(--text-main);
+      margin-bottom: 6px;
     }
 
     p.subtitle {
-      color: #b3b3b3;
-      font-size: 0.9rem;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      font-weight: 400;
     }
 
     .container {
       width: 100%;
-      max-width: 480px;
+      max-width: 440px;
     }
 
     /* TELA 1: SELEÇÃO DE GÊNEROS */
     #home-screen {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
     }
 
     .genre-card {
-      background: #1e1e1e;
-      border: 1px solid #282828;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
       border-radius: 12px;
-      padding: 18px 20px;
+      padding: 16px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       cursor: pointer;
-      transition: transform 0.2s, background 0.2s;
+      transition: all 0.2s ease;
     }
 
     .genre-card:hover {
-      background: #282828;
-      transform: translateY(-2px);
+      background: var(--card-hover);
+      border-color: #3f3f46;
     }
 
     .genre-name {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: #fff;
+      font-size: 0.975rem;
+      font-weight: 500;
+      color: var(--text-main);
     }
 
     .genre-count {
-      font-size: 0.8rem;
-      color: #1DB954;
-      background: rgba(29, 185, 84, 0.1);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      background: #27272a;
       padding: 4px 10px;
-      border-radius: 12px;
+      border-radius: 20px;
+      font-weight: 400;
     }
 
-    /* TELA 2: PLAYER DE ÁUDIO */
+    /* TELA 2: TRANSMISSÃO */
     #player-screen {
       display: none;
       flex-direction: column;
-      gap: 20px;
+      gap: 24px;
     }
 
     .btn-back {
       background: none;
       border: none;
-      color: #1DB954;
-      font-size: 0.95rem;
+      color: var(--text-muted);
+      font-size: 0.875rem;
       cursor: pointer;
       display: flex;
       align-items: center;
       gap: 6px;
-      margin-bottom: 10px;
+      transition: color 0.2s;
       width: fit-content;
     }
 
+    .btn-back:hover {
+      color: var(--text-main);
+    }
+
     .player-card {
-      background: #1e1e1e;
-      padding: 24px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 32px 24px;
       border-radius: 16px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
       text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     }
 
     .live-badge {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: rgba(255, 0, 0, 0.2);
-      color: #ff4d4d;
-      font-size: 0.75rem;
-      font-weight: bold;
-      padding: 4px 10px;
-      border-radius: 20px;
-      margin-bottom: 12px;
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
-      letter-spacing: 1px;
+      margin-bottom: 20px;
     }
 
     .live-dot {
-      width: 8px;
-      height: 8px;
-      background: #ff4d4d;
+      width: 6px;
+      height: 6px;
+      background: var(--live-indicator);
       border-radius: 50%;
-      animation: pulse 1.5s infinite;
+      animation: pulse 2s infinite;
     }
 
     @keyframes pulse {
@@ -146,97 +165,106 @@
     }
 
     .track-info {
-      margin-bottom: 20px;
+      margin-bottom: 24px;
     }
 
     .track-title {
-      font-size: 1.3rem;
-      font-weight: bold;
-      margin-bottom: 6px;
-      color: #fff;
+      font-size: 1.25rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      margin-bottom: 8px;
+      color: var(--text-main);
+      line-height: 1.3;
     }
 
     .track-artist {
-      font-size: 1.05rem;
-      color: #b3b3b3;
-      margin-bottom: 4px;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      font-weight: 400;
     }
 
     .track-genre {
       display: inline-block;
-      font-size: 0.8rem;
-      background: #333;
-      color: #1DB954;
+      font-size: 0.75rem;
+      color: var(--accent);
+      background: #27272a;
       padding: 4px 12px;
       border-radius: 12px;
-      margin-top: 6px;
+      font-weight: 400;
     }
 
     .controls {
       display: flex;
       justify-content: center;
       align-items: center;
-      margin-top: 15px;
+      margin-top: 10px;
     }
 
     button.btn-play {
-      background: #1DB954;
+      background: var(--accent);
       border: none;
       color: #000;
-      width: 70px;
-      height: 70px;
+      width: 64px;
+      height: 64px;
       border-radius: 50%;
-      font-size: 1.8rem;
+      font-size: 1.5rem;
       cursor: pointer;
-      transition: background 0.2s, transform 0.1s;
+      transition: transform 0.15s ease, background-color 0.2s ease;
       display: flex;
       align-items: center;
       justify-content: center;
+      box-shadow: 0 4px 14px rgba(255, 255, 255, 0.1);
     }
 
     button.btn-play:hover {
-      background: #1ed760;
+      transform: scale(1.03);
+      background: #ffffff;
     }
 
     button.btn-play:active {
-      transform: scale(0.95);
+      transform: scale(0.96);
     }
 
-    /* HISTÓRICO DE REPRODUÇÃO */
+    /* REGISTRO DE TRANSMISSÃO */
     .history-section {
-      background: #1e1e1e;
-      padding: 16px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 20px;
       border-radius: 16px;
     }
 
     .history-title {
-      font-size: 0.85rem;
-      color: #b3b3b3;
-      margin-bottom: 12px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 16px;
       text-transform: uppercase;
-      letter-spacing: 1px;
+      letter-spacing: 0.08em;
+      font-weight: 500;
     }
 
     .history-list {
-      max-height: 250px;
+      max-height: 220px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
     }
 
     .history-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 12px;
-      background: #252525;
+      padding: 10px 14px;
+      background: transparent;
       border-radius: 8px;
+      border-left: 2px solid transparent;
+      transition: background 0.15s;
     }
 
     .history-item.now-playing {
-      background: #2a3a2e;
-      border-left: 4px solid #1DB954;
+      background: #202024;
+      border-left-color: var(--accent);
     }
 
     .history-item-info {
@@ -244,26 +272,27 @@
     }
 
     .history-item-title {
-      font-size: 0.95rem;
-      color: #fff;
+      font-size: 0.875rem;
+      color: var(--text-main);
       font-weight: 500;
     }
 
     .history-item-artist {
-      font-size: 0.8rem;
-      color: #b3b3b3;
+      font-size: 0.775rem;
+      color: var(--text-muted);
+      margin-top: 2px;
     }
 
     .history-tag {
-      font-size: 0.75rem;
-      color: #1DB954;
+      font-size: 0.7rem;
+      color: var(--accent-muted);
     }
 
     .status-msg {
       text-align: center;
-      font-size: 0.85rem;
-      color: #888;
-      margin-top: 12px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 16px;
     }
 
     audio {
@@ -274,8 +303,8 @@
 <body>
 
   <header>
-    <h1>📻 Web Rádio</h1>
-    <p class="subtitle" id="page-subtitle">Escolha um estilo para começar a ouvir</p>
+    <h1>Web Rádio</h1>
+    <p class="subtitle" id="page-subtitle">Selecione uma sintonia</p>
   </header>
 
   <div class="container">
@@ -283,10 +312,10 @@
 
     <!-- TELA 1: LISTA DE ESTILOS -->
     <div id="home-screen">
-      <!-- Cards gerados dinamicamente -->
+      <!-- Cards de gênero inseridos via JS -->
     </div>
 
-    <!-- TELA 2: TRANSMISSÃO AO VIVO -->
+    <!-- TELA 2: PLAYER DE ÁUDIO -->
     <div id="player-screen">
       <button class="btn-back" id="back-btn">← Sintonizar outro estilo</button>
 
@@ -302,7 +331,7 @@
         </div>
 
         <div class="controls">
-          <button class="btn-play" id="play-btn" title="Reproduzir/Pausar">▶</button>
+          <button class="btn-play" id="play-btn" title="Reproduzir / Pausar">▶</button>
         </div>
 
         <div class="status-msg" id="status-text">Conectando...</div>
@@ -319,8 +348,8 @@
 
   <script>
     let playlist = [];
-    let poolPlaylist = []; // Fila aleatória sem repetição
-    let playedHistory = []; // Registro de músicas reproduzidas
+    let poolPlaylist = []; 
+    let playedHistory = [];
     let currentTrack = null;
     let selectedGenreGlobal = 'Todos';
     let isPlaying = false;
@@ -344,7 +373,7 @@
 
     function onError(error) {
       console.error('Erro no Shaka Player:', error);
-      document.getElementById('status-text').innerText = 'Erro ao carregar sinal da rádio.';
+      document.getElementById('status-text').innerText = 'Erro na conexão do sinal.';
     }
 
     async function loadPlaylist() {
@@ -356,7 +385,7 @@
         renderHomeGenres();
       } catch (err) {
         console.error('Erro ao carregar dados:', err);
-        document.getElementById('home-screen').innerHTML = '<p style="text-align:center; color:#888;">Erro ao conectar com a rádio.</p>';
+        document.getElementById('home-screen').innerHTML = '<p style="text-align:center; color:#71717a;">Erro ao carregar programação.</p>';
       }
     }
 
@@ -368,7 +397,7 @@
 
       let html = `
         <div class="genre-card" onclick="startRadio('Todos')">
-          <div class="genre-name">📻 Ouvir todos os gêneros</div>
+          <div class="genre-name">Ouvir todos os gêneros</div>
           <div class="genre-count">${playlist.length} faixas</div>
         </div>
       `;
@@ -386,27 +415,22 @@
       homeScreen.innerHTML = html;
     }
 
-    // Inicia a rádio para o gênero escolhido
     function startRadio(genre) {
       selectedGenreGlobal = genre;
       playedHistory = [];
       
-      // Filtra músicas
       const baseList = (genre === 'Todos') 
         ? [...playlist] 
         : playlist.filter(track => track.genre === genre);
 
       if (baseList.length === 0) return;
 
-      // Cria a fila aleatória
       poolPlaylist = shuffleArray([...baseList]);
 
-      // Alterna interface
       document.getElementById('home-screen').style.display = 'none';
       document.getElementById('player-screen').style.display = 'flex';
-      document.getElementById('page-subtitle').innerText = genre === 'Todos' ? 'Sintonizado: Todos os Gêneros' : `Sintonizado: ${genre}`;
+      document.getElementById('page-subtitle').innerText = genre === 'Todos' ? 'Todos os Gêneros' : `${genre}`;
 
-      // Configura visibilidade do gênero
       const genreBadge = document.getElementById('current-genre');
       if (genre === 'Todos') {
         genreBadge.style.display = 'inline-block';
@@ -417,10 +441,10 @@
       playNextRandomTrack();
     }
 
-    // Toca a próxima música aleatória da fila
+    // Toca a próxima faixa aleatória (Loop infinito sem repetição contínua)
     async function playNextRandomTrack() {
+      // Se acabou o bloco atual, reembaralha e continua infinitamente
       if (poolPlaylist.length === 0) {
-        // Recarrega e embaralha a lista quando todas já tiverem tocado
         const baseList = (selectedGenreGlobal === 'Todos') 
           ? [...playlist] 
           : playlist.filter(track => track.genre === selectedGenreGlobal);
@@ -428,8 +452,9 @@
       }
 
       currentTrack = poolPlaylist.pop();
-      playedHistory.unshift(currentTrack); // Adiciona no início do histórico
+      playedHistory.unshift(currentTrack);
 
+      // Atualiza UI da Tela
       document.getElementById('current-title').innerText = currentTrack.title || 'Sem título';
       document.getElementById('current-artist').innerText = currentTrack.artist || 'Artista desconhecido';
       
@@ -437,8 +462,11 @@
         document.getElementById('current-genre').innerText = currentTrack.genre || 'Geral';
       }
 
-      document.getElementById('status-text').innerText = 'Sintonizando faixa...';
+      document.getElementById('status-text').innerText = 'Sintonizando...';
       renderHistoryUI();
+
+      // Configura Notificações do Sistema / Tela de Bloqueio (Media Session API)
+      updateMediaSession(currentTrack);
 
       try {
         if (currentTrack.isDash) {
@@ -455,7 +483,20 @@
       }
     }
 
-    // Renderiza o Histórico de Transmissão
+    // Atualiza a notificação do sistema do celular
+    function updateMediaSession(track) {
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: track.title || 'Sem título',
+          artist: track.artist || 'Artista desconhecido',
+          album: track.genre || 'Web Rádio' // Exibe o gênero no campo de álbum
+        });
+
+        navigator.mediaSession.setActionHandler('play', () => playAudio());
+        navigator.mediaSession.setActionHandler('pause', () => pauseAudio());
+      }
+    }
+
     function renderHistoryUI() {
       const container = document.getElementById('history-list');
       if (!container) return;
@@ -463,7 +504,7 @@
       container.innerHTML = playedHistory.map((track, idx) => `
         <div class="history-item ${idx === 0 ? 'now-playing' : ''}">
           <div class="history-item-info">
-            <div class="history-item-title">${idx === 0 ? '🔴 ' : ''}${track.title}</div>
+            <div class="history-item-title">${track.title}</div>
             <div class="history-item-artist">${track.artist}</div>
           </div>
           ${(selectedGenreGlobal === 'Todos' && track.genre) ? `<span class="history-tag">${track.genre}</span>` : ''}
@@ -475,7 +516,7 @@
       pauseAudio();
       document.getElementById('player-screen').style.display = 'none';
       document.getElementById('home-screen').style.display = 'flex';
-      document.getElementById('page-subtitle').innerText = 'Escolha um estilo para começar a ouvir';
+      document.getElementById('page-subtitle').innerText = 'Selecione uma sintonia';
     }
 
     function playAudio() {
@@ -502,7 +543,7 @@
       }
     }
 
-    // Função para embaralhar array (Algoritmo Fisher-Yates)
+    // Algoritmo Fisher-Yates para sorteio aleatório
     function shuffleArray(array) {
       for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -515,7 +556,7 @@
       document.getElementById('play-btn').addEventListener('click', togglePlay);
       document.getElementById('back-btn').addEventListener('click', showHomeScreen);
 
-      // Quando a música atual termina, a rádio seleciona e toca a próxima automaticamente
+      // Reprodução contínua automática
       audioElement.addEventListener('ended', () => {
         playNextRandomTrack();
       });
