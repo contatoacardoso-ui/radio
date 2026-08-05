@@ -1,58 +1,58 @@
 [
-            {
-                title: "Hip Hop Journal Episode 106 w",
-                artist: "DJ Stikmand",
-                genre: "Hip-Hop & Rap",
-                url: "https://dl.mixcloud.stream/secure/c/m4a/64/c/5/0/1/3227-e125-4f71-8f0e-1385ceb2e079.m4a?sig=_xKR0Y1UF2g9dMd2HYwWOg",
-                isDash: true
-            },
-            {
-                title: "The Up In Smoke Madd Tour Mix - Pt 1",
-                artist: "Dailey Maddawg",
-                genre: "Hip-Hop & Rap",
-				        url: "https://dl.mixcloud.stream/secure/c/m4a/64/c/7/d/b/d50a-85a7-4463-8fbc-8bfd07672c56.m4a?sig=szJXEWTyLHy2RxU3ewcQ8Q",
-                isDash: false
-            },
-            {
-                title: "MiXturada",
-                artist: "Gimenes Grooveria",
-				        genre: "Hip-Hop & Rap",
-                url: "https://dl.mixcloud.stream/secure/c/m4a/64/6/e/3/8/01b4-d881-4a02-b618-a5b2b8f252e4.m4a?sig=l3UhlXVp23zNTklmvuiiNA",
-                isDash: false
-            },
-	          {
-                title: "Chicos No Samba",
-                artist: "Gimenes Grooveria",
-				        genre: "Samba & MPB",
-                url: "https://dl.mixcloud.stream/secure/c/m4a/64/8/c/6/1/b85b-70cc-41b3-a161-8bc6fc722289.m4a?sig=2-G0YLXnoVSZlrHTX27JFQ",
-                isDash: false
-            },
-	          {
-                title: "Jorges",
-                artist: "Gimenes Grooveria",
-                genre: "Samba & MPB",
-				        url: "https://dl.mixcloud.stream/secure/c/m4a/64/9/c/2/f/ef45-8b98-402c-bee3-ed07afd49ae8.m4a?sig=iAr9NwruaI5HlXceCUm1ww",
-                isDash: false
-            },
-	          {
-                title: "2000s Rock",
-                artist: "Deezer",
-                genre: "Rock",
-				        url: "https://dl.mixcloud.stream/secure/c/m4a/64/a/3/0/2/f700-3325-4d37-bfd3-80afdda3f4f6.m4a?sig=wQTGgAX_pO23f46Uv3rEAQ",
-                isDash: false
-            },
-            {
-                title: "Bravus Vol. 1",
-                artist: "Samba em Família",
-                genre: "Samba & MPB",
-				        url: "https://dl.mixcloud.stream/secure/c/m4a/64/c/b/3/6/f4c8-e919-4ccc-96a7-254469bd2c65.m4a?sig=lL3zIWWikf-M8-kVrGUDvA",
-                isDash: false
-            },  
-            {
-                title: "American Music Awards 2001 (Part 2)",
-                artist: "Dailey Maddawg",
-                genre: "Rock",
-				        url: "https://dl.mixcloud.stream/secure/c/m4a/64/d/c/4/6/55c4-d498-4cf8-b1af-131ca1c5e626.m4a?sig=lNSHUiQF1blPYXJUY3126g",
-                isDash: false
-            }
+  {
+    "title": "Hip Hop Journal Episode 106 w",
+    "artist": "DJ Stikmand",
+    "genre": "Hip-Hop & Rap",
+    "url": "https://dl.mixcloud.stream/secure/c/m4a/64/c/5/0/1/3227-e125-4f71-8f0e-1385ceb2e079.m4a?sig=_xKR0Y1UF2g9dMd2HYwWOg",
+    "isDash": true
+  },
+  {
+    "title": "The Up In Smoke Madd Tour Mix - Pt 1",
+    "artist": "Dailey Maddawg",
+    "genre": "Hip-Hop & Rap",
+    "url": "https://dl.mixcloud.stream/secure/c/m4a/64/c/7/d/b/d50a-85a7-4463-8fbc-8bfd07672c56.m4a?sig=szJXEWTyLHy2RxU3ewcQ8Q",
+    "isDash": false
+  },
+  {
+    "title": "MiXturada",
+    "artist": "Gimenes Grooveria",
+    "genre": "Hip-Hop & Rap",
+    "url": "https://dl.mixcloud.stream/secure/c/m4a/64/6/e/3/8/01b4-d881-4a02-b618-a5b2b8f252e4.m4a?sig=l3UhlXVp23zNTklmvuiiNA",
+    "isDash": false
+  },
+  {
+    "title": "Chicos No Samba",
+    "artist": "Gimenes Grooveria",
+    "genre": "Samba & MPB",
+    "url": "https://dl.mixcloud.stream/secure/c/m4a/64/8/c/6/1/b85b-70cc-41b3-a161-8bc6fc722289.m4a?sig=2-G0YLXnoVSZlrHTX27JFQ",
+    "isDash": false
+  },
+  {
+    "title": "Jorges",
+    "artist": "Gimenes Grooveria",
+    "genre": "Samba & MPB",
+    "url": "https://dl.mixcloud.stream/secure/c/m4a/64/9/c/2/f/ef45-8b98-402c-bee3-ed07afd49ae8.m4a?sig=iAr9NwruaI5HlXceCUm1ww",
+    "isDash": false
+  },
+  {
+    "title": "2000s Rock",
+    "artist": "Deezer",
+    "genre": "Rock",
+    "url": "https://dl.mixcloud.stream/secure/c/m4a/64/a/3/0/2/f700-3325-4d37-bfd3-80afdda3f4f6.m4a?sig=wQTGgAX_pO23f46Uv3rEAQ",
+    "isDash": false
+  },
+  {
+    "title": "Bravus Vol. 1",
+    "artist": "Samba em Família",
+    "genre": "Samba & MPB",
+    "url": "https://dl.mixcloud.stream/secure/c/m4a/64/c/b/3/6/f4c8-e919-4ccc-96a7-254469bd2c65.m4a?sig=lL3zIWWikf-M8-kVrGUDvA",
+    "isDash": false
+  },
+  {
+    "title": "American Music Awards 2001 (Part 2)",
+    "artist": "Dailey Maddawg",
+    "genre": "Rock",
+    "url": "https://dl.mixcloud.stream/secure/c/m4a/64/d/c/4/6/55c4-d498-4cf8-b1af-131ca1c5e626.m4a?sig=lNSHUiQF1blPYXJUY3126g",
+    "isDash": false
+  }
 ]
