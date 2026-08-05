@@ -474,6 +474,7 @@
       }
     }
 
+    // Configura Notificação Limpa e Remove Barra de Progresso
     function updateMediaSession(track) {
       if ('mediaSession' in navigator) {
         navigator.mediaSession.metadata = new MediaMetadata({
@@ -482,8 +483,23 @@
           album: track.genre || 'Web Rádio'
         });
 
+        // Habilita apenas os botões de Play/Pause na notificação (desativa seekbar/avanço)
         navigator.mediaSession.setActionHandler('play', () => playAudio());
         navigator.mediaSession.setActionHandler('pause', () => pauseAudio());
+        
+        // Remove ações de buscar tempo na notificação
+        try {
+          navigator.mediaSession.setActionHandler('seekto', null);
+          navigator.mediaSession.setActionHandler('seekbackward', null);
+          navigator.mediaSession.setActionHandler('seekforward', null);
+          
+          // Oculta contador de tempo/duração no sistema
+          if (navigator.mediaSession.setPositionState) {
+            navigator.mediaSession.setPositionState(null);
+          }
+        } catch (e) {
+          // Ignora se o navegador do dispositivo não suportar a remoção explícita
+        }
       }
     }
 
