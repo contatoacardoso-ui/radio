@@ -428,7 +428,7 @@
 				url: "https://dl.mixcloud.stream/secure/c/m4a/64/d/c/4/6/55c4-d498-4cf8-b1af-131ca1c5e626.m4a?sig=lNSHUiQF1blPYXJUY3126g",
                 isDash: false
             }  
-		];
+        ];
 
         let activePlaylist = [];
         let playedHistory = [];
@@ -445,7 +445,7 @@
             shakaPlayer = new shaka.Player(audio);
 
             renderGenreButtons();
-            setupBackButtonPrevention();
+            setupHistorySystem();
             setupMediaSessionHandlers();
 
             audio.onended = () => {
@@ -453,24 +453,32 @@
             };
         }
 
-        /* --- PREVENÇÃO DE FECHAMENTO PELO BOTÃO VOLTAR --- */
-        function setupBackButtonPrevention() {
-            // Adiciona um estado ao histórico para prender a navegação interna
-            history.pushState({ page: 'app' }, "", location.href);
-
-            window.addEventListener('popstate', (event) => {
-                // Se a tela de gêneros estiver aberta, o botão voltar apenas fecha o modal
+        /* --- NAVEGAÇÃO DE HISTÓRICO COM HASH PARA BLOQUEAR SAÍDA --- */
+        function setupHistorySystem() {
+            // Garante que haja um histórico para o botão voltar interagir
+            window.addEventListener('popstate', (e) => {
                 const overlay = document.getElementById('startOverlay');
+                
+                // Se a janela de gêneros estiver aberta ao clicar em voltar, fecha ela
                 if (!overlay.classList.contains('hidden')) {
                     overlay.classList.add('hidden');
+                    history.pushState(null, "", "#player");
+                    return;
                 }
-                
-                // Força o histórico a re-injetar o estado, impedindo o fechamento do app
-                history.pushState({ page: 'app' }, "", location.href);
+
+                // Se o usuário clicar em Voltar enquanto ouve música, re-abre a tela de gêneros
+                openGenreSelector();
+            });
+
+            // Alerta padrão do navegador caso o usuário tente fechar a aba/janela enquanto toca
+            window.addEventListener('beforeunload', (e) => {
+                if (!audio.paused) {
+                    e.preventDefault();
+                    e.returnValue = '';
+                }
             });
         }
 
-        /* --- MEDIA SESSION API (Notificação / Controles de Mídia / Tela Bloqueada) --- */
         function updateMediaSession(track) {
             if ('mediaSession' in navigator) {
                 navigator.mediaSession.metadata = new MediaMetadata({
@@ -512,6 +520,7 @@
 
         function openGenreSelector() {
             document.getElementById('startOverlay').classList.remove('hidden');
+            history.pushState(null, "", "#select-genre");
         }
 
         function selectGenreAndStart(genre) {
@@ -530,6 +539,10 @@
 
             document.getElementById('startOverlay').classList.add('hidden');
             
+            // Empurra o hash #player para interceptar o botão voltar do SO
+            location.hash = "player";
+            history.pushState(null, "", "#player");
+
             audio.play().catch(() => {});
             playRandomTrack();
         }
