@@ -311,7 +311,7 @@
       <!-- Cards de gênero inseridos via JS -->
     </div>
 
-    <!-- TELA 2: PLAYER DE ÁUDIO -->
+    <!-- TELA 2: TRANSMISSÃO -->
     <div id="player-screen">
       <button class="btn-back" id="back-btn">← Sintonizar outro estilo</button>
 
@@ -379,6 +379,14 @@
 
         playlist = await response.json();
         renderHomeGenres();
+
+        // Restaura estado após reload
+        const savedState = localStorage.getItem('radio_active_view');
+        const savedGenre = localStorage.getItem('radio_selected_genre');
+
+        if (savedState === 'player' && savedGenre) {
+          startRadio(savedGenre, false); // Inicia na tela do player
+        }
       } catch (err) {
         console.error('Erro ao carregar dados:', err);
         document.getElementById('home-screen').innerHTML = '<p style="text-align:center; color:#71717a;">Erro ao carregar programação.</p>';
@@ -392,7 +400,7 @@
       const genres = [...new Set(playlist.map(item => item.genre).filter(Boolean))];
 
       let html = `
-        <div class="genre-card" onclick="startRadio('Todos')">
+        <div class="genre-card" onclick="startRadio('Todos', true)">
           <div class="genre-name">Ouvir todos os gêneros</div>
           <div class="genre-icon">→</div>
         </div>
@@ -400,7 +408,7 @@
 
       genres.forEach(genre => {
         html += `
-          <div class="genre-card" onclick="startRadio('${genre}')">
+          <div class="genre-card" onclick="startRadio('${genre}', true)">
             <div class="genre-name">${genre}</div>
             <div class="genre-icon">→</div>
           </div>
@@ -410,10 +418,19 @@
       homeScreen.innerHTML = html;
     }
 
-    function startRadio(genre) {
+    function startRadio(genre, isUserAction = true) {
+      // Se for o mesmo gênero e a música já estiver tocando, só volta à tela sem reiniciar a faixa
+      if (selectedGenreGlobal === genre && currentTrack && isUserAction) {
+        showPlayerScreen(genre);
+        return;
+      }
+
       selectedGenreGlobal = genre;
       playedHistory = [];
       
+      localStorage.setItem('radio_active_view', 'player');
+      localStorage.setItem('radio_selected_genre', genre);
+
       const baseList = (genre === 'Todos') 
         ? [...playlist] 
         : playlist.filter(track => track.genre === genre);
@@ -421,7 +438,12 @@
       if (baseList.length === 0) return;
 
       poolPlaylist = shuffleArray([...baseList]);
+      showPlayerScreen(genre);
 
+      playNextRandomTrack();
+    }
+
+    function showPlayerScreen(genre) {
       document.getElementById('home-screen').style.display = 'none';
       document.getElementById('player-screen').style.display = 'flex';
       document.getElementById('page-subtitle').innerText = genre === 'Todos' ? 'Todos os Gêneros' : `${genre}`;
@@ -432,8 +454,6 @@
       } else {
         genreBadge.style.display = 'none';
       }
-
-      playNextRandomTrack();
     }
 
     async function playNextRandomTrack() {
@@ -474,7 +494,7 @@
       }
     }
 
-    // Configura Notificação Limpa e Remove Barra de Progresso
+    // Oculta completamente a barra de progresso nas notificações definindo modo rádio contínuo
     function updateMediaSession(track) {
       if ('mediaSession' in navigator) {
         navigator.mediaSession.metadata = new MediaMetadata({
@@ -483,23 +503,15 @@
           album: track.genre || 'Web Rádio'
         });
 
-        // Habilita apenas os botões de Play/Pause na notificação (desativa seekbar/avanço)
+        // Habilita apenas Play/Pause (sem seek)
         navigator.mediaSession.setActionHandler('play', () => playAudio());
         navigator.mediaSession.setActionHandler('pause', () => pauseAudio());
-        
-        // Remove ações de buscar tempo na notificação
+
         try {
           navigator.mediaSession.setActionHandler('seekto', null);
           navigator.mediaSession.setActionHandler('seekbackward', null);
           navigator.mediaSession.setActionHandler('seekforward', null);
-          
-          // Oculta contador de tempo/duração no sistema
-          if (navigator.mediaSession.setPositionState) {
-            navigator.mediaSession.setPositionState(null);
-          }
-        } catch (e) {
-          // Ignora se o navegador do dispositivo não suportar a remoção explícita
-        }
+        } catch (e) {}
       }
     }
 
@@ -518,8 +530,9 @@
       `).join('');
     }
 
+    // Volta à tela inicial sem parar a execução da áudio
     function showHomeScreen() {
-      pauseAudio();
+      localStorage.setItem('radio_active_view', 'home');
       document.getElementById('player-screen').style.display = 'none';
       document.getElementById('home-screen').style.display = 'flex';
       document.getElementById('page-subtitle').innerText = 'Selecione uma sintonia';
@@ -560,6 +573,15 @@
     function setupEventListeners() {
       document.getElementById('play-btn').addEventListener('click', togglePlay);
       document.getElementById('back-btn').addEventListener('click', showHomeScreen);
+
+      // Truque técnico: força a duração do HTML5 Audio a ser "Infinita" para o SO remover a barra de tempo
+      audioElement.addEventListener('durationchange', () => {
+        if (audioElement.duration !== Infinity) {
+          Object.defineProperty(audioElement, 'duration', {
+            get: () => Infinity
+          });
+        }
+      });
 
       audioElement.addEventListener('ended', () => {
         playNextRandomTrack();
