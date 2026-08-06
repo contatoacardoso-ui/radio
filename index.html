@@ -608,7 +608,6 @@
         playlist = await response.json();
         renderHomeGenres();
 
-        // Verifica se a navegação foi um recarregamento de página (F5/Refresh)
         const navigationType = performance.getEntriesByType("navigation")[0]?.type;
         const savedGenre = sessionStorage.getItem('radio_selected_genre');
         const savedTrackRaw = sessionStorage.getItem('radio_current_track');
@@ -617,7 +616,6 @@
           const savedTrack = JSON.parse(savedTrackRaw);
           resumeRadioOnReload(savedGenre, savedTrack);
         } else {
-          // Se for uma nova sessão/abertura, limpa e vai para a Home
           sessionStorage.clear();
           showHomeScreen();
         }
@@ -637,7 +635,7 @@
 
       let html = `
         <div class="genre-card" tabindex="0" onclick="startRadio('Todos', true)" onkeydown="if(event.key==='Enter') startRadio('Todos', true)">
-          <div class="genre-name">Ouvir todas as rádios</div>
+          <div class="genre-name">Ouvir Todas</div>
           <div class="genre-icon">→</div>
         </div>
       `;
@@ -655,7 +653,9 @@
     }
 
     function startRadio(genre, isUserAction = true) {
-      if (selectedGenreGlobal === genre && currentTrack && isUserAction && document.getElementById('player-screen').style.display === 'flex') {
+      // SE JÁ ESTIVER TOCANDO A MESMA RÁDIO, APENAS REABRE O PLAYER SEM REINICIAR A MÚSICA
+      if (selectedGenreGlobal === genre && currentTrack) {
+        showPlayerScreen(genre);
         return;
       }
 
@@ -681,7 +681,6 @@
       playNextRandomTrack(false);
     }
 
-    // Função responsável por restaurar a rádio e a música ao dar Refresh (F5)
     async function resumeRadioOnReload(genre, track) {
       selectedGenreGlobal = genre;
       currentTrack = track;
@@ -750,7 +749,6 @@
 
       currentTrack = poolPlaylist.pop();
 
-      // Salva a música atual no sessionStorage para aguentar recarregamentos da página
       sessionStorage.setItem('radio_current_track', JSON.stringify(currentTrack));
 
       document.getElementById('current-title').innerText = currentTrack.title || 'Sem título';
