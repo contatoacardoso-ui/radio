@@ -151,12 +151,13 @@
       min-width: 0;
     }
 
-    /* Container e Regras de Marquee */
+    /* Regras do Marquee Corrigidas */
     .marquee-container {
       overflow: hidden;
       white-space: nowrap;
       width: 100%;
       position: relative;
+      display: block;
     }
 
     .track-title, .mini-player-title {
@@ -165,6 +166,7 @@
       font-size: 0.95rem;
       font-weight: 600;
       color: var(--text-main);
+      width: max-content; /* Força o elemento a ter a largura total real das letras */
     }
 
     .mini-player-title {
@@ -172,7 +174,6 @@
     }
 
     .marquee-active {
-      display: inline-block !important;
       animation: marquee-exact 8s ease-in-out infinite !important;
     }
 
@@ -669,7 +670,7 @@
       homeScreen.innerHTML = html;
     }
 
-    // Calcula se o texto é maior que a largura disponível e aplica a animação com um leve atraso
+    // Função de verificação e aplicação do deslocamento
     function checkAndApplyMarquee(elementId) {
       setTimeout(() => {
         const el = document.getElementById(elementId);
@@ -679,14 +680,14 @@
         el.style.removeProperty('--marquee-overflow');
 
         const parentWidth = el.parentElement.clientWidth;
-        const scrollWidth = el.scrollWidth;
+        const textWidth = el.getBoundingClientRect().width;
 
-        if (scrollWidth > parentWidth && parentWidth > 0) {
-          const overflow = scrollWidth - parentWidth + 12; // 12px de margem de folga
+        if (textWidth > parentWidth && parentWidth > 0) {
+          const overflow = textWidth - parentWidth + 12; // 12px de folga
           el.style.setProperty('--marquee-overflow', `${overflow}px`);
           el.classList.add('marquee-active');
         }
-      }, 50);
+      }, 100);
     }
 
     function startRadio(genre, isUserAction = true) {
