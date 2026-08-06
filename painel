@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Central de Rádios - Painel Pro Horizontal v2.0</title>
+  <style>
+    :root {
+      --bg-color: #0b0f19;
+      --panel-bg: rgba(17, 24, 39, 0.9);
+      --card-bg: #1f2937;
+      --card-border: #374151;
+      --input-bg: #111827;
+      --text-main: #f9fafb;
+      --text-muted: #9ca3af;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --danger: #ef4444;
+      --danger-bg: rgba(239, 68, 68, 0.15);
+      --warning: #f59e0b;
+      --warning-bg: rgba(245, 158, 11, 0.15);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      background-image: radial-gradient(circle at 50% 0%, #1e1b4b 0%, var(--bg-color) 70%);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      padding: 32px 16px;
+      min-height: 100vh;
+    }
+
+    /* Tela de Login Solicitando Senha */
+    #lock-screen {
+      display: flex;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #0b0f19;
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .login-card {
+      background: #111827;
+      border: 1px solid #374151;
+      border-radius: 16px;
+      padding: 28px;
+      width: 100%;
+      max-width: 360px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+      text-align: center;
+    }
+
+    .login-card h2 {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    /* Layout Horizontal Expandido */
+    .admin-container {
+      display: none;
+      width: 100%;
+      max-width: 860px;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .header-title h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(180deg, #ffffff 0%, #9ca3af 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-title p {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-top: 2px;
+    }
+
+    .btn-icon {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      outline: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    .btn-icon:hover {
+      background: #374151;
+      border-color: #4b5563;
+      transform: translateY(-1px);
+    }
+
+    .btn-icon svg {
+      width: 22px;
+      height: 22px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .card {
+      background: var(--panel-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-main);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .badge-count {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--text-main);
+      font-size: 0.75rem;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+
+    /* Formulario Horizontal em 2 Colunas */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      text-align: left;
+    }
+
+    label {
+      font-size: 0.725rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+    }
+
+    input, select {
+      background: var(--input-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      outline: none;
+      transition: all 0.2s ease;
+      width: 100%;
+    }
+
+    input:focus {
+      border-color: #6b7280;
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
+    }
+
+    .form-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-top: 4px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .checkbox-group input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .checkbox-group label {
+      font-size: 0.85rem;
+      text-transform: none;
+      color: var(--text-main);
+      cursor: pointer;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    button.btn-primary {
+      background: var(--accent);
+      color: #ffffff;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+
+    button.btn-primary:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+
+    button.btn-primary:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    button.btn-cancel {
+      background: #374151;
+      color: var(--text-main);
+      border: 1px solid var(--card-border);
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: none;
+      white-space: nowrap;
+    }
+
+    button.btn-cancel:hover {
+      background: #4b5563;
+    }
+
+    /* Lista de Faixas Alinhada */
+    .track-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 400px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .track-list::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .track-list::-webkit-scrollbar-thumb {
+      background: var(--card-border);
+      border-radius: 4px;
+    }
+
+    .track-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(31, 41, 55, 0.8);
+      border: 1px solid var(--card-border);
+      padding: 14px 16px;
+      border-radius: 12px;
+      transition: all 0.2s ease;
+    }
+
+    .track-item:hover {
+      border-color: #4b5563;
+      background: #374151;
+    }
+
+    .track-info {
+      overflow: hidden;
+      margin-right: 16px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .track-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--text-main);
+    }
+
+    .track-sub {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .track-actions {
+      display: flex !important;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .btn-action {
+      border: 1px solid transparent;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 8px 14px;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-action.edit {
+      background: var(--warning-bg);
+      border-color: rgba(245, 158, 11, 0.3);
+      color: var(--warning);
+    }
+
+    .btn-action.edit:hover {
+      background: var(--warning);
+      color: #000;
+    }
+
+    .btn-action.delete {
+      background: var(--danger-bg);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: var(--danger);
+    }
+
+    .btn-action.delete:hover {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    .status-msg {
+      font-size: 0.825rem;
+      text-align: center;
+      color: var(--text-muted);
+      padding: 12px 0;
+    }
+
+    /* Modal de Credenciais */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 999;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+
+    .modal-card {
+      background: #111827;
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 24px;
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 12px;
+    }
+
+    .modal-header h2 {
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    .btn-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.4rem;
+      cursor: pointer;
+    }
+
+    @media (max-width: 640px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .form-footer { flex-direction: column; align-items: stretch; }
+      .button-row { width: 100%; }
+      button.btn-primary { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- AUTENTICAÇÃO (SOLICITA SENHA EM CADA REFRESH) -->
+  <div id="lock-screen">
+    <div class="login-card">
+      <h2>Painel de Controle</h2>
+      <p style="font-size: 0.8rem; color: var(--text-muted);">Digite a senha para acessar a administração.</p>
+      <form onsubmit="autenticarPainel(event)">
+        <div class="form-group">
+          <input type="password" id="admin-pass" placeholder="Sua senha de acesso" required autofocus>
+        </div>
+        <button type="submit" class="btn-primary" style="width: 100%; margin-top: 12px;">Entrar no Painel</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- CONTAINER PRINCIPAL HORIZONTAL -->
+  <div class="admin-container" id="admin-main">
+    <header>
+      <div class="header-title">
+        <h1>Central Admin</h1>
+        <p>Lançamento & Transmissão ao Vivo</p>
+      </div>
+      <button class="btn-icon" onclick="abrirModalConfig()" title="Configurações do GitHub">
+        <svg viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+      </button>
+    </header>
+
+    <!-- Formulário Grid em 2 Colunas -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title" id="form-card-title">Cadastrar Novo Lançamento</div>
+      </div>
+      <form id="add-track-form" onsubmit="salvarMusica(event)">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Título da Música / Rádio:</label>
+            <input type="text" id="title" required placeholder="Ex: Boate Azul">
+          </div>
+          <div class="form-group">
+            <label>Artista / Emissora:</label>
+            <input type="text" id="artist" required placeholder="Ex: Bruno & Marrone">
+          </div>
+          <div class="form-group">
+            <label>Gênero:</label>
+            <input type="text" id="genre" required placeholder="Ex: Sertanejo">
+          </div>
+          <div class="form-group">
+            <label>URL do Stream (MP3, M4A ou DASH):</label>
+            <input type="url" id="url" required placeholder="https://servidor.com/stream.m4a">
+          </div>
+        </div>
+
+        <div class="form-footer">
+          <div class="checkbox-group">
+            <input type="checkbox" id="isDash">
+            <label for="isDash">Fluxo DASH / MPD (.mpd)</label>
+          </div>
+          <div class="button-row">
+            <button type="button" class="btn-cancel" id="btn-cancel" onclick="cancelarEdicao()">
+              Cancelar
+            </button>
+            <button type="submit" class="btn-primary" id="btn-save" disabled>
+              Lançar no Servidor
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Lista de Faixas Cadastradas -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Programação Ativa</div>
+        <span class="badge-count" id="count">0</span>
+      </div>
+      <p class="status-msg" id="status">Sincronizando com o GitHub...</p>
+      <div class="track-list" id="track-list"></div>
+    </div>
+  </div>
+
+  <!-- Modal de Credenciais do GitHub -->
+  <div class="modal-overlay" id="modal-config">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>Credenciais do Repositório</h2>
+        <button class="btn-close" onclick="fecharModalConfig()">&times;</button>
+      </div>
+      <div class="form-group">
+        <label>Usuário no GitHub:</label>
+        <input type="text" id="gh-owner" placeholder="Ex: joaosilva">
+      </div>
+      <div class="form-group">
+        <label>Nome do Repositório:</label>
+        <input type="text" id="gh-repo" placeholder="Ex: central-de-radios">
+      </div>
+      <div class="form-group">
+        <label>Personal Access Token (PAT):</label>
+        <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+      </div>
+      <button type="button" class="btn-primary" style="width: 100%; margin-top: 8px;" onclick="salvarConfiguracoes()">Salvar Credenciais</button>
+    </div>
+  </div>
+
+  <script>
+    // SENHA DO PAINEL
+    var SENHA_MESTRE = "1234"; 
+
+    var playlist = [];
+    var ghConfig = { owner: '', repo: '', path: 'playlist.json', token: '' };
+    var editingIndex = -1;
+
+    function autenticarPainel(event) {
+      event.preventDefault();
+      var passInput = document.getElementById('admin-pass').value;
+      if (passInput === SENHA_MESTRE) {
+        document.getElementById('lock-screen').style.display = 'none';
+        document.getElementById('admin-main').style.display = 'flex';
+        carregarConfiguracoesSalvas();
+        carregarPlaylistDoGitHub();
+      } else {
+        alert('Senha incorreta!');
+        document.getElementById('admin-pass').value = '';
+      }
+    }
+
+    function abrirModalConfig() {
+      document.getElementById('modal-config').style.display = 'flex';
+    }
+
+    function fecharModalConfig() {
+      document.getElementById('modal-config').style.display = 'none';
+    }
+
+    function carregarConfiguracoesSalvas() {
+      ghConfig.owner = localStorage.getItem('gh_owner') || '';
+      ghConfig.repo = localStorage.getItem('gh_repo') || '';
+      ghConfig.token = localStorage.getItem('gh_token') || '';
+
+      document.getElementById('gh-owner').value = ghConfig.owner;
+      document.getElementById('gh-repo').value = ghConfig.repo;
+      document.getElementById('gh-token').value = ghConfig.token;
+
+      verificarBotaoSalvar();
+    }
+
+    function salvarConfiguracoes() {
+      ghConfig.owner = document.getElementById('gh-owner').value.trim();
+      ghConfig.repo = document.getElementById('gh-repo').value.trim();
+      ghConfig.token = document.getElementById('gh-token').value.trim();
+
+      localStorage.setItem('gh_owner', ghConfig.owner);
+      localStorage.setItem('gh_repo', ghConfig.repo);
+      localStorage.setItem('gh_token', ghConfig.token);
+
+      fecharModalConfig();
+      verificarBotaoSalvar();
+      carregarPlaylistDoGitHub();
+    }
+
+    function verificarBotaoSalvar() {
+      var btn = document.getElementById('btn-save');
+      if (ghConfig.owner && ghConfig.repo && ghConfig.token) {
+        btn.disabled = false;
+      } else {
+        btn.disabled = true;
+      }
+    }
+
+    async function carregarPlaylistDoGitHub() {
+      var statusEl = document.getElementById('status');
+      var listEl = document.getElementById('track-list');
+
+      if (!ghConfig.owner || !ghConfig.repo) {
+        statusEl.innerHTML = 'Clique no ícone de <b>Engrenagem</b> para configurar o GitHub.';
+        listEl.innerHTML = '';
+        return;
+      }
+
+      statusEl.innerText = 'Sincronizando com o repositório...';
+
+      try {
+        var url = `https://api.github.com/repos/${ghConfig.owner}/${ghConfig.repo}/contents/${ghConfig.path}?v=` + new Date().getTime();
+        var headers = {};
+        if (ghConfig.token) headers['Authorization'] = `token ${ghConfig.token}`;
+
+        var response = await fetch(url, { headers: headers });
+        if (!response.ok) throw new Error('Não foi possível carregar o arquivo playlist.json');
+
+        var data = await response.json();
+        var jsonContent = decodeURIComponent(escape(atob(data.content)));
+        playlist = JSON.parse(jsonContent);
+
+        renderTrackList();
+        statusEl.innerText = '';
+      } catch (err) {
+        console.error(err);
+        statusEl.innerText = 'Erro de conexão. Verifique as credenciais na Engrenagem.';
+      }
+    }
+
+    function renderTrackList() {
+      var listEl = document.getElementById('track-list');
+      document.getElementById('count').innerText = playlist.length;
+
+      if (playlist.length === 0) {
+        listEl.innerHTML = '<p class="status-msg">Nenhuma música cadastrada no momento.</p>';
+        return;
+      }
+
+      var html = '';
+      playlist.forEach(function(track, index) {
+        html += `
+          <div class="track-item">
+            <div class="track-info">
+              <div class="track-title">${track.title || 'Sem título'}</div>
+              <div class="track-sub">${track.artist || 'Artista desconhecido'} • <span style="color:var(--text-main);">${track.genre || 'Geral'}</span></div>
+            </div>
+            <div class="track-actions">
+              <button type="button" class="btn-action edit" onclick="carregarParaEdicao(${index})">Editar</button>
+              <button type="button" class="btn-action delete" onclick="removerMusica(${index})">Excluir</button>
+            </div>
+          </div>
+        `;
+      });
+      listEl.innerHTML = html;
+    }
+
+    function carregarParaEdicao(index) {
+      editingIndex = index;
+      var track = playlist[index];
+
+      document.getElementById('title').value = track.title || '';
+      document.getElementById('artist').value = track.artist || '';
+      document.getElementById('genre').value = track.genre || '';
+      document.getElementById('url').value = track.url || '';
+      document.getElementById('isDash').checked = !!track.isDash;
+
+      document.getElementById('form-card-title').innerText = 'Editar Lançamento';
+      document.getElementById('btn-save').innerText = 'Salvar Alterações';
+      document.getElementById('btn-cancel').style.display = 'inline-block';
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function cancelarEdicao() {
+      editingIndex = -1;
+      document.getElementById('add-track-form').reset();
+      document.getElementById('form-card-title').innerText = 'Cadastrar Novo Lançamento';
+      document.getElementById('btn-save').innerText = 'Lançar no Servidor';
+      document.getElementById('btn-cancel').style.display = 'none';
+    }
+
+    async function salvarMusica(event) {
+      event.preventDefault();
+
+      var dadosMusica = {
+        title: document.getElementById('title').value.trim(),
+        artist: document.getElementById('artist').value.trim(),
+        genre: document.getElementById('genre').value.trim(),
+        url: document.getElementById('url').value.trim(),
+        isDash: document.getElementById('isDash').checked
+      };
+
+      var commitMsg = '';
+
+      if (editingIndex >= 0) {
+        playlist[editingIndex] = dadosMusica;
+        commitMsg = `fix: Atualizada faixa "${dadosMusica.title}"`;
+      } else {
+        playlist.push(dadosMusica);
+        commitMsg = `feat: Lançamento de "${dadosMusica.title}"`;
+      }
+
+      await salvarPlaylistNoGitHub(commitMsg);
+      cancelarEdicao();
+    }
+
+    async function removerMusica(index) {
+      if (!confirm(`Deseja remover "${playlist[index].title}"?`)) return;
+
+      var removida = playlist.splice(index, 1)[0];
+
+      if (editingIndex === index) {
+        cancelarEdicao();
+      }
+
+      await salvarPlaylistNoGitHub(`fix: Removida faixa "${removida.title}"`);
+    }
+
+    async function salvarPlaylistNoGitHub(commitMessage) {
+      var statusEl = document.getElementById('status');
+      statusEl.innerText = 'Enviando alterações para o GitHub...';
+
+      try {
+        var getUrl = `https://api.github.com/repos/${ghConfig.owner}/${ghConfig.repo}/contents/${ghConfig.path}`;
+        var headers = {
+          'Authorization': `token ${ghConfig.token}`,
+          'Accept': 'application/vnd.github.v3+json'
+        };
+
+        var responseGet = await fetch(getUrl, { headers: headers });
+        if (!responseGet.ok) throw new Error('Falha ao obter o arquivo atual.');
+        var fileData = await responseGet.json();
+
+        var jsonString = JSON.stringify(playlist, null, 2);
+        var contentBase64 = btoa(unescape(encodeURIComponent(jsonString)));
+
+        var responsePut = await fetch(getUrl, {
+          method: 'PUT',
+          headers: headers,
+          body: JSON.stringify({
+            message: commitMessage,
+            content: contentBase64,
+            sha: fileData.sha
+          })
+        });
+
+        if (responsePut.ok) {
+          renderTrackList();
+          statusEl.innerText = '';
+        } else {
+          var errData = await responsePut.json();
+          throw new Error(errData.message || 'Erro ao gravar no GitHub.');
+        }
+
+      } catch (err) {
+        console.error(err);
+        alert('Erro ao salvar no GitHub: ' + err.message);
+        statusEl.innerText = 'Erro ao salvar alterações.';
+      }
+    }
+  </script>
+</body>
+</html>
