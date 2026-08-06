@@ -17,6 +17,7 @@
       --accent-hover: #16a34a;
       --danger: #f43f5e;
       --danger-hover: #e11d48;
+      --warning: #eab308;
     }
 
     * {
@@ -180,7 +181,14 @@
       cursor: pointer;
     }
 
+    .button-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
     button.btn-primary {
+      flex: 1;
       background: var(--text-main);
       color: var(--bg-color);
       border: none;
@@ -194,7 +202,6 @@
       justify-content: center;
       align-items: center;
       gap: 8px;
-      margin-top: 4px;
     }
 
     button.btn-primary:hover {
@@ -204,6 +211,23 @@
     button.btn-primary:disabled {
       opacity: 0.4;
       cursor: not-allowed;
+    }
+
+    button.btn-cancel {
+      background: #27272a;
+      color: var(--text-main);
+      border: 1px solid var(--card-border);
+      padding: 12px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: none;
+    }
+
+    button.btn-cancel:hover {
+      background: #3f3f46;
     }
 
     .track-list {
@@ -261,6 +285,29 @@
       text-overflow: ellipsis;
     }
 
+    .track-actions {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .btn-edit {
+      background: rgba(234, 179, 8, 0.1);
+      border: 1px solid rgba(234, 179, 8, 0.2);
+      color: var(--warning);
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 6px 10px;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-edit:hover {
+      background: var(--warning);
+      color: #000;
+    }
+
     .btn-delete {
       background: rgba(244, 63, 94, 0.1);
       border: 1px solid rgba(244, 63, 94, 0.2);
@@ -271,7 +318,6 @@
       padding: 6px 10px;
       border-radius: 6px;
       transition: all 0.2s ease;
-      flex-shrink: 0;
     }
 
     .btn-delete:hover {
@@ -353,7 +399,7 @@
     <header>
       <div class="header-title">
         <h1>Painel de Controle</h1>
-        <p>Lançamento de Músicas & Rádios</p>
+        <p>Lançamento & Edição de Músicas</p>
       </div>
       <button class="btn-icon" onclick="abrirModalConfig()" title="Configurações do GitHub">
         <svg viewBox="0 0 24 24">
@@ -363,12 +409,12 @@
       </button>
     </header>
 
-    <!-- Formulário de Lançamento -->
+    <!-- Formulário de Lançamento / Edição -->
     <div class="card">
       <div class="card-header">
-        <div class="card-title">Novo Lançamento</div>
+        <div class="card-title" id="form-card-title">Novo Lançamento</div>
       </div>
-      <form id="add-track-form" onsubmit="adicionarNovaMusica(event)">
+      <form id="add-track-form" onsubmit="salvarMusica(event)">
         <div class="form-group">
           <label>Título da Música / Rádio:</label>
           <input type="text" id="title" required placeholder="Ex: Boate Azul">
@@ -389,9 +435,14 @@
           <input type="checkbox" id="isDash">
           <label for="isDash">Fluxo DASH / MPD (.mpd)</label>
         </div>
-        <button type="submit" class="btn-primary" id="btn-save" disabled>
-          Lançar no Servidor
-        </button>
+        <div class="button-row">
+          <button type="submit" class="btn-primary" id="btn-save" disabled>
+            Lançar no Servidor
+          </button>
+          <button type="button" class="btn-cancel" id="btn-cancel" onclick="cancelarEdicao()">
+            Cancelar
+          </button>
+        </div>
       </form>
     </div>
 
@@ -432,6 +483,7 @@
   <script>
     var playlist = [];
     var ghConfig = { owner: '', repo: '', path: 'playlist.json', token: '' };
+    var editingIndex = -1; // -1 indica novo cadastro; >= 0 indica edição de faixa existente
 
     document.addEventListener('DOMContentLoaded', function() {
       carregarConfiguracoesSalvas();
@@ -530,17 +582,45 @@
               <div class="track-title">${track.title}</div>
               <div class="track-sub">${track.artist} • <span style="color:var(--text-main);">${track.genre}</span></div>
             </div>
-            <button class="btn-delete" onclick="removerMusica(${index})">Remover</button>
+            <div class="track-actions">
+              <button class="btn-edit" onclick="carregarParaEdicao(${index})">Editar</button>
+              <button class="btn-delete" onclick="removerMusica(${index})">Remover</button>
+            </div>
           </div>
         `;
       });
       listEl.innerHTML = html;
     }
 
-    async function adicionarNovaMusica(event) {
+    function carregarParaEdicao(index) {
+      editingIndex = index;
+      var track = playlist[index];
+
+      document.getElementById('title').value = track.title || '';
+      document.getElementById('artist').value = track.artist || '';
+      document.getElementById('genre').value = track.genre || '';
+      document.getElementById('url').value = track.url || '';
+      document.getElementById('isDash').checked = !!track.isDash;
+
+      document.getElementById('form-card-title').innerText = 'Editar Lançamento';
+      document.getElementById('btn-save').innerText = 'Salvar Alterações';
+      document.getElementById('btn-cancel').style.display = 'block';
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function cancelarEdicao() {
+      editingIndex = -1;
+      document.getElementById('add-track-form').reset();
+      document.getElementById('form-card-title').innerText = 'Novo Lançamento';
+      document.getElementById('btn-save').innerText = 'Lançar no Servidor';
+      document.getElementById('btn-cancel').style.display = 'none';
+    }
+
+    async function salvarMusica(event) {
       event.preventDefault();
 
-      var novaMusica = {
+      var dadosMusica = {
         title: document.getElementById('title').value.trim(),
         artist: document.getElementById('artist').value.trim(),
         genre: document.getElementById('genre').value.trim(),
@@ -548,16 +628,31 @@
         isDash: document.getElementById('isDash').checked
       };
 
-      playlist.push(novaMusica);
+      var commitMsg = '';
 
-      await salvarPlaylistNoGitHub(`feat: Lançamento de "${novaMusica.title}"`);
-      document.getElementById('add-track-form').reset();
+      if (editingIndex >= 0) {
+        // Modo Edição
+        playlist[editingIndex] = dadosMusica;
+        commitMsg = `fix: Atualizada faixa "${dadosMusica.title}"`;
+      } else {
+        // Modo Novo Lançamento
+        playlist.push(dadosMusica);
+        commitMsg = `feat: Lançamento de "${dadosMusica.title}"`;
+      }
+
+      await salvarPlaylistNoGitHub(commitMsg);
+      cancelarEdicao();
     }
 
     async function removerMusica(index) {
       if (!confirm(`Deseja remover "${playlist[index].title}"?`)) return;
 
       var removida = playlist.splice(index, 1)[0];
+
+      if (editingIndex === index) {
+        cancelarEdicao();
+      }
+
       await salvarPlaylistNoGitHub(`fix: Removida faixa "${removida.title}"`);
     }
 
