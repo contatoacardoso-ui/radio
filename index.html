@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Web Rádio</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#18181b">
@@ -31,58 +31,69 @@
       -webkit-tap-highlight-color: transparent;
     }
 
+    html, body {
+      height: 100%;
+      overflow: hidden; /* Impede a rolagem geral da tela */
+    }
+
     body {
       background-color: var(--bg-color);
       color: var(--text-main);
       display: flex;
-      flex-direction: column;
+      justify-content: center;
       align-items: center;
-      min-height: 100vh;
-      padding: 24px 16px;
+    }
+
+    .app-viewport {
+      width: 100%;
+      max-width: 440px;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      padding: 16px;
+      gap: 16px;
     }
 
     header {
-      margin-top: 10px;
-      margin-bottom: 32px;
       text-align: center;
+      flex-shrink: 0;
     }
 
     h1 {
-      font-size: 1.5rem;
-      font-weight: 500;
+      font-size: 1.35rem;
+      font-weight: 600;
       letter-spacing: -0.02em;
       color: var(--text-main);
-      margin-bottom: 6px;
     }
 
     p.subtitle {
       color: var(--text-muted);
-      font-size: 0.875rem;
+      font-size: 0.8rem;
       font-weight: 400;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 440px;
+      margin-top: 2px;
     }
 
     /* TELA 1: SELEÇÃO DE GÊNEROS */
     #home-screen {
+      flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
+      overflow-y: auto;
+      padding-right: 2px;
     }
 
     .genre-card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: 12px;
-      padding: 18px 20px;
+      padding: 14px 18px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       cursor: pointer;
       transition: all 0.2s ease;
+      flex-shrink: 0;
     }
 
     .genre-card:hover {
@@ -91,7 +102,7 @@
     }
 
     .genre-name {
-      font-size: 0.975rem;
+      font-size: 0.9rem;
       font-weight: 500;
       color: var(--text-main);
     }
@@ -101,57 +112,110 @@
       color: var(--text-muted);
     }
 
-    /* TELA 2: TRANSMISSÃO */
+    /* TELA 2: PLAYER & HISTÓRICO */
     #player-screen {
       display: none;
       flex-direction: column;
-      gap: 24px;
+      flex: 1;
+      gap: 14px;
+      min-height: 0; /* Essencial para permitir scroll filho no flexbox */
     }
 
     .btn-back {
       background: none;
       border: none;
       color: var(--text-muted);
-      font-size: 0.875rem;
+      font-size: 0.8rem;
       cursor: pointer;
       display: flex;
       align-items: center;
       gap: 6px;
       transition: color 0.2s;
       width: fit-content;
+      flex-shrink: 0;
     }
 
     .btn-back:hover {
       color: var(--text-main);
     }
 
-    .player-card {
+    /* CARD DO PLAYER COMPACTO */
+    .player-card-compact {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      padding: 32px 24px;
-      border-radius: 16px;
-      text-align: center;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      padding: 16px 18px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      flex-shrink: 0;
+    }
+
+    .player-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      overflow: hidden;
+      flex: 1;
+    }
+
+    .live-badge-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     .live-badge {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       color: var(--text-muted);
-      font-size: 0.7rem;
-      font-weight: 500;
+      font-size: 0.65rem;
+      font-weight: 600;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      margin-bottom: 20px;
     }
 
     .live-dot {
-      width: 6px;
-      height: 6px;
+      width: 5px;
+      height: 5px;
       background: var(--live-indicator);
       border-radius: 50%;
       animation: pulse 2s infinite;
+    }
+
+    /* ONDA SONORA / SOUNDWAVE ANIMATION */
+    .soundwave {
+      display: flex;
+      align-items: flex-end;
+      gap: 2px;
+      height: 12px;
+    }
+
+    .soundwave .bar {
+      width: 2px;
+      height: 100%;
+      background-color: var(--text-muted);
+      border-radius: 1px;
+      animation: soundwave-anim 1.2s ease-in-out infinite alternate;
+      animation-play-state: paused;
+    }
+
+    .soundwave.playing .bar {
+      animation-play-state: running;
+      background-color: var(--accent);
+    }
+
+    .soundwave .bar:nth-child(1) { animation-delay: 0.1s; height: 30%; }
+    .soundwave .bar:nth-child(2) { animation-delay: 0.3s; height: 100%; }
+    .soundwave .bar:nth-child(3) { animation-delay: 0.2s; height: 60%; }
+    .soundwave .bar:nth-child(4) { animation-delay: 0.4s; height: 80%; }
+
+    @keyframes soundwave-anim {
+      0% { height: 20%; }
+      100% { height: 100%; }
     }
 
     @keyframes pulse {
@@ -160,102 +224,105 @@
       100% { opacity: 1; }
     }
 
-    .track-info {
-      margin-bottom: 24px;
-    }
-
     .track-title {
-      font-size: 1.25rem;
+      font-size: 0.95rem;
       font-weight: 600;
-      letter-spacing: -0.01em;
-      margin-bottom: 8px;
       color: var(--text-main);
-      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .track-artist {
-      font-size: 0.95rem;
+      font-size: 0.8rem;
       color: var(--text-muted);
-      margin-bottom: 12px;
-      font-weight: 400;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .track-genre {
       display: inline-block;
-      font-size: 0.75rem;
-      color: var(--accent);
-      background: #27272a;
-      padding: 4px 12px;
-      border-radius: 12px;
-      font-weight: 400;
+      font-size: 0.65rem;
+      color: var(--accent-muted);
+      margin-top: 2px;
     }
 
-    .controls {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-top: 10px;
-    }
-
-    button.btn-play {
+    /* BOTÃO PLAY/PAUSE */
+    button.btn-play-compact {
       background: var(--accent);
       border: none;
       color: #000;
-      width: 64px;
-      height: 64px;
+      width: 48px;
+      height: 48px;
       border-radius: 50%;
-      font-size: 1.5rem;
+      font-size: 1.1rem;
       cursor: pointer;
-      transition: transform 0.15s ease, background-color 0.2s ease;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 14px rgba(255, 255, 255, 0.1);
+      flex-shrink: 0;
+      transition: transform 0.15s ease, background-color 0.2s ease;
+      box-shadow: 0 2px 10px rgba(255, 255, 255, 0.08);
     }
 
-    button.btn-play:hover {
-      transform: scale(1.03);
-      background: #ffffff;
+    button.btn-play-compact:active {
+      transform: scale(0.92);
     }
 
-    button.btn-play:active {
-      transform: scale(0.96);
-    }
-
-    /* REGISTRO DE TRANSMISSÃO */
+    /* SEÇÃO HISTÓRICO COM SCROLL PRÓPRIO */
     .history-section {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      padding: 20px;
-      border-radius: 16px;
+      padding: 16px;
+      border-radius: 14px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0; /* Permite scroll interno */
     }
 
     .history-title {
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       color: var(--text-muted);
-      margin-bottom: 16px;
+      margin-bottom: 10px;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      font-weight: 500;
+      font-weight: 600;
+      flex-shrink: 0;
     }
 
     .history-list {
-      max-height: 220px;
+      flex: 1;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
       gap: 6px;
+      padding-right: 4px;
+    }
+
+    /* Estilização da Scrollbar */
+    .history-list::-webkit-scrollbar,
+    #home-screen::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .history-list::-webkit-scrollbar-thumb,
+    #home-screen::-webkit-scrollbar-thumb {
+      background: var(--card-border);
+      border-radius: 4px;
     }
 
     .history-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 14px;
+      padding: 8px 10px;
       background: transparent;
-      border-radius: 8px;
+      border-radius: 6px;
       border-left: 2px solid transparent;
       transition: background 0.15s;
+      flex-shrink: 0;
     }
 
     .history-item.now-playing {
@@ -265,30 +332,32 @@
 
     .history-item-info {
       text-align: left;
+      overflow: hidden;
     }
 
     .history-item-title {
-      font-size: 0.875rem;
+      font-size: 0.8rem;
       color: var(--text-main);
       font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .history-item-artist {
-      font-size: 0.775rem;
+      font-size: 0.725rem;
       color: var(--text-muted);
-      margin-top: 2px;
+      margin-top: 1px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .history-tag {
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       color: var(--accent-muted);
-    }
-
-    .status-msg {
-      text-align: center;
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin-top: 16px;
+      flex-shrink: 0;
+      margin-left: 8px;
     }
 
     audio {
@@ -298,12 +367,12 @@
 </head>
 <body>
 
-  <header>
-    <h1>Web Rádio</h1>
-    <p class="subtitle" id="page-subtitle">Selecione uma sintonia</p>
-  </header>
+  <div class="app-viewport">
+    <header>
+      <h1>Web Rádio</h1>
+      <p class="subtitle" id="page-subtitle">Selecione uma sintonia</p>
+    </header>
 
-  <div class="container">
     <audio id="audio-element" controls></audio>
 
     <!-- TELA 1: LISTA DE ESTILOS -->
@@ -315,28 +384,32 @@
     <div id="player-screen">
       <button class="btn-back" id="back-btn">← Sintonizar outro estilo</button>
 
-      <div class="player-card">
-        <div class="live-badge">
-          <span class="live-dot"></span> Ao Vivo
-        </div>
+      <div class="player-card-compact">
+        <div class="player-left">
+          <div class="live-badge-row">
+            <div class="live-badge">
+              <span class="live-dot"></span> Ao Vivo
+            </div>
+            <div class="soundwave" id="soundwave">
+              <div class="bar"></div>
+              <div class="bar"></div>
+              <div class="bar"></div>
+              <div class="bar"></div>
+            </div>
+          </div>
 
-        <div class="track-info">
           <div class="track-title" id="current-title">Sintonizando...</div>
           <div class="track-artist" id="current-artist">-</div>
           <div class="track-genre" id="current-genre" style="display: none;">Gênero</div>
         </div>
 
-        <div class="controls">
-          <button class="btn-play" id="play-btn" title="Reproduzir / Pausar">▶</button>
-        </div>
-
-        <div class="status-msg" id="status-text">Conectando...</div>
+        <button class="btn-play-compact" id="play-btn" title="Reproduzir / Pausar">▶</button>
       </div>
 
       <div class="history-section">
         <div class="history-title">Registro de Transmissão</div>
         <div class="history-list" id="history-list">
-          <!-- Histórico montado via JS -->
+          <!-- Histórico com barra de rolagem -->
         </div>
       </div>
     </div>
@@ -369,7 +442,6 @@
 
     function onError(error) {
       console.error('Erro no Shaka Player:', error);
-      document.getElementById('status-text').innerText = 'Erro na conexão do sinal.';
     }
 
     async function loadPlaylist() {
@@ -380,12 +452,11 @@
         playlist = await response.json();
         renderHomeGenres();
 
-        // Restaura estado após reload
         const savedState = localStorage.getItem('radio_active_view');
         const savedGenre = localStorage.getItem('radio_selected_genre');
 
         if (savedState === 'player' && savedGenre) {
-          startRadio(savedGenre, false); // Inicia na tela do player
+          startRadio(savedGenre, false);
         }
       } catch (err) {
         console.error('Erro ao carregar dados:', err);
@@ -419,7 +490,6 @@
     }
 
     function startRadio(genre, isUserAction = true) {
-      // Se for o mesmo gênero e a música já estiver tocando, só volta à tela sem reiniciar a faixa
       if (selectedGenreGlobal === genre && currentTrack && isUserAction) {
         showPlayerScreen(genre);
         return;
@@ -474,9 +544,7 @@
         document.getElementById('current-genre').innerText = currentTrack.genre || 'Geral';
       }
 
-      document.getElementById('status-text').innerText = 'Sintonizando...';
       renderHistoryUI();
-
       updateMediaSession(currentTrack);
 
       try {
@@ -488,13 +556,11 @@
         }
 
         playAudio();
-        document.getElementById('status-text').innerText = 'Transmitindo ao vivo';
       } catch (err) {
         onError(err);
       }
     }
 
-    // Oculta completamente a barra de progresso nas notificações definindo modo rádio contínuo
     function updateMediaSession(track) {
       if ('mediaSession' in navigator) {
         navigator.mediaSession.metadata = new MediaMetadata({
@@ -503,7 +569,6 @@
           album: track.genre || 'Web Rádio'
         });
 
-        // Habilita apenas Play/Pause (sem seek)
         navigator.mediaSession.setActionHandler('play', () => playAudio());
         navigator.mediaSession.setActionHandler('pause', () => pauseAudio());
 
@@ -530,7 +595,6 @@
       `).join('');
     }
 
-    // Volta à tela inicial sem parar a execução da áudio
     function showHomeScreen() {
       localStorage.setItem('radio_active_view', 'home');
       document.getElementById('player-screen').style.display = 'none';
@@ -542,9 +606,11 @@
       audioElement.play().then(() => {
         isPlaying = true;
         document.getElementById('play-btn').innerText = '⏸';
+        document.getElementById('soundwave').classList.add('playing');
       }).catch(() => {
         isPlaying = false;
         document.getElementById('play-btn').innerText = '▶';
+        document.getElementById('soundwave').classList.remove('playing');
       });
     }
 
@@ -552,6 +618,7 @@
       audioElement.pause();
       isPlaying = false;
       document.getElementById('play-btn').innerText = '▶';
+      document.getElementById('soundwave').classList.remove('playing');
     }
 
     function togglePlay() {
@@ -574,7 +641,6 @@
       document.getElementById('play-btn').addEventListener('click', togglePlay);
       document.getElementById('back-btn').addEventListener('click', showHomeScreen);
 
-      // Truque técnico: força a duração do HTML5 Audio a ser "Infinita" para o SO remover a barra de tempo
       audioElement.addEventListener('durationchange', () => {
         if (audioElement.duration !== Infinity) {
           Object.defineProperty(audioElement, 'duration', {
