@@ -148,9 +148,10 @@
       overflow: hidden;
       flex: 1;
       margin-right: 12px;
+      min-width: 0;
     }
 
-    /* Marquee Dinâmico - Desliza até revelar exatamente a última letra */
+    /* Container e Regras de Marquee */
     .marquee-container {
       overflow: hidden;
       white-space: nowrap;
@@ -171,16 +172,16 @@
     }
 
     .marquee-active {
-      display: inline-block;
-      animation: marquee-exact 8s ease-in-out infinite;
+      display: inline-block !important;
+      animation: marquee-exact 8s ease-in-out infinite !important;
     }
 
     @keyframes marquee-exact {
       0% { transform: translateX(0); }
-      20% { transform: translateX(0); } /* Pausa inicial para leitura */
-      60% { transform: translateX(calc(-1px * var(--marquee-overflow, 0px))); } /* Desliza APENAS o excesso */
-      80% { transform: translateX(calc(-1px * var(--marquee-overflow, 0px))); } /* Pausa no final */
-      100% { transform: translateX(0); } /* Retorna ao início */
+      20% { transform: translateX(0); }
+      60% { transform: translateX(calc(-1px * var(--marquee-overflow, 0px))); }
+      80% { transform: translateX(calc(-1px * var(--marquee-overflow, 0px))); }
+      100% { transform: translateX(0); }
     }
 
     .mini-player-subtitle, .track-artist {
@@ -247,6 +248,7 @@
       gap: 4px;
       overflow: hidden;
       flex: 1;
+      min-width: 0;
     }
 
     .live-badge-row {
@@ -667,22 +669,24 @@
       homeScreen.innerHTML = html;
     }
 
-    // Calcula exatamente quantos pixels o texto passa da tela e define a animação
+    // Calcula se o texto é maior que a largura disponível e aplica a animação com um leve atraso
     function checkAndApplyMarquee(elementId) {
-      const el = document.getElementById(elementId);
-      if (!el || !el.parentElement) return;
+      setTimeout(() => {
+        const el = document.getElementById(elementId);
+        if (!el || !el.parentElement) return;
 
-      el.classList.remove('marquee-active');
-      el.style.removeProperty('--marquee-overflow');
+        el.classList.remove('marquee-active');
+        el.style.removeProperty('--marquee-overflow');
 
-      const overflow = el.scrollWidth - el.parentElement.clientWidth;
+        const parentWidth = el.parentElement.clientWidth;
+        const scrollWidth = el.scrollWidth;
 
-      if (overflow > 4) { // Margem pequena de tolerância
-        el.style.setProperty('--marquee-overflow', `${overflow + 8}px`); // +8px de folga
-        requestAnimationFrame(() => {
+        if (scrollWidth > parentWidth && parentWidth > 0) {
+          const overflow = scrollWidth - parentWidth + 12; // 12px de margem de folga
+          el.style.setProperty('--marquee-overflow', `${overflow}px`);
           el.classList.add('marquee-active');
-        });
-      }
+        }
+      }, 50);
     }
 
     function startRadio(genre, isUserAction = true) {
