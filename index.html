@@ -151,7 +151,7 @@
       min-width: 0;
     }
 
-    /* Regras do Marquee Corrigidas */
+    /* Regras do Marquee */
     .marquee-container {
       overflow: hidden;
       white-space: nowrap;
@@ -166,23 +166,12 @@
       font-size: 0.95rem;
       font-weight: 600;
       color: var(--text-main);
-      width: max-content; /* Força o elemento a ter a largura total real das letras */
+      width: max-content;
+      will-change: transform;
     }
 
     .mini-player-title {
       font-size: 0.825rem;
-    }
-
-    .marquee-active {
-      animation: marquee-exact 8s ease-in-out infinite !important;
-    }
-
-    @keyframes marquee-exact {
-      0% { transform: translateX(0); }
-      20% { transform: translateX(0); }
-      60% { transform: translateX(calc(-1px * var(--marquee-overflow, 0px))); }
-      80% { transform: translateX(calc(-1px * var(--marquee-overflow, 0px))); }
-      100% { transform: translateX(0); }
     }
 
     .mini-player-subtitle, .track-artist {
@@ -558,6 +547,7 @@
     let isPlaying = false;
     let shakaPlayer = null;
     let audioElement = null;
+    const activeMarquees = new Map();
 
     document.addEventListener('DOMContentLoaded', () => {
       audioElement = document.getElementById('audio-element');
@@ -670,24 +660,42 @@
       homeScreen.innerHTML = html;
     }
 
-    // Função de verificação e aplicação do deslocamento
+    // Animação infalível via JavaScript (Web Animations API)
     function checkAndApplyMarquee(elementId) {
       setTimeout(() => {
         const el = document.getElementById(elementId);
         if (!el || !el.parentElement) return;
 
-        el.classList.remove('marquee-active');
-        el.style.removeProperty('--marquee-overflow');
-
-        const parentWidth = el.parentElement.clientWidth;
-        const textWidth = el.getBoundingClientRect().width;
-
-        if (textWidth > parentWidth && parentWidth > 0) {
-          const overflow = textWidth - parentWidth + 12; // 12px de folga
-          el.style.setProperty('--marquee-overflow', `${overflow}px`);
-          el.classList.add('marquee-active');
+        // Cancela animação ativa anterior, se houver
+        if (activeMarquees.has(elementId)) {
+          activeMarquees.get(elementId).cancel();
+          activeMarquees.delete(elementId);
         }
-      }, 100);
+
+        el.style.transform = 'translateX(0)';
+
+        const containerWidth = el.parentElement.clientWidth;
+        const textWidth = el.scrollWidth;
+
+        // Se o texto for maior que a caixa visível
+        if (textWidth > containerWidth && containerWidth > 0) {
+          const overflow = textWidth - containerWidth + 10; // 10px extra de margem
+
+          const animation = el.animate([
+            { transform: 'translateX(0)', offset: 0 },
+            { transform: 'translateX(0)', offset: 0.2 }, // Pausa no início
+            { transform: `translateX(-${overflow}px)`, offset: 0.6 }, // Desliza até a última letra
+            { transform: `translateX(-${overflow}px)`, offset: 0.8 }, // Pausa no final
+            { transform: 'translateX(0)', offset: 1 } // Retorna ao início
+          ], {
+            duration: 8000,
+            iterations: Infinity,
+            easing: 'ease-in-out'
+          });
+
+          activeMarquees.set(elementId, animation);
+        }
+      }, 80);
     }
 
     function startRadio(genre, isUserAction = true) {
