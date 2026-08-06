@@ -103,11 +103,13 @@
       cursor: pointer;
       transition: all 0.2s ease;
       flex-shrink: 0;
+      outline: none;
     }
 
-    .genre-card:hover {
+    .genre-card:hover, .genre-card:focus {
       background: var(--card-hover);
-      border-color: #3f3f46;
+      border-color: #52525b;
+      transform: scale(1.01);
     }
 
     .genre-name {
@@ -196,8 +198,9 @@
       flex-shrink: 0;
     }
 
-    .btn-back:hover {
+    .btn-back:hover, .btn-back:focus {
       color: var(--text-main);
+      outline: none;
     }
 
     /* CARD DO PLAYER COMPACTO */
@@ -323,6 +326,7 @@
       justify-content: center;
       flex-shrink: 0;
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      outline: none;
     }
 
     button.btn-play-compact.mini {
@@ -330,7 +334,7 @@
       height: 36px;
     }
 
-    button.btn-play-compact:hover {
+    button.btn-play-compact:hover, button.btn-play-compact:focus {
       background: #3f3f46;
       border-color: #52525b;
       transform: scale(1.03);
@@ -462,15 +466,15 @@
       <p class="subtitle" id="page-subtitle">Selecione uma sintonia</p>
     </header>
 
-    <audio id="audio-element" controls></audio>
+    <audio id="audio-element" controls preload="auto"></audio>
 
     <!-- TELA 1: LISTA DE ESTILOS -->
     <div id="home-screen">
       <!-- Cards inseridos via JS -->
     </div>
 
-    <!-- MINI PLAYER NA TELA INICIAL (QUANDO NAVEGAR DE VOLTA) -->
-    <div class="mini-player" id="mini-player" onclick="restorePlayerFromMini()">
+    <!-- MINI PLAYER NA TELA INICIAL -->
+    <div class="mini-player" id="mini-player" tabindex="0" onclick="restorePlayerFromMini()">
       <div class="mini-player-info">
         <div class="mini-player-title" id="mini-title">Música Atual</div>
         <div class="mini-player-subtitle" id="mini-artist">Artista</div>
@@ -531,7 +535,7 @@
       <div class="history-section">
         <div class="history-title">Registro de Transmissão</div>
         <div class="history-list" id="history-list">
-          <!-- Histórico das tocadas automaticamente -->
+          <!-- Histórico -->
         </div>
       </div>
     </div>
@@ -599,9 +603,19 @@
     }
 
     async function loadPlaylist() {
+      const homeScreen = document.getElementById('home-screen');
       try {
-        const response = await fetch('playlist.json?v=' + new Date().getTime());
-        if (!response.ok) throw new Error('Erro ao carregar playlist.json');
+        // Suporte para TV Box e navegadores com restrição de caminho
+        const cacheBust = '?v=' + new Date().getTime();
+        let response;
+        
+        try {
+          response = await fetch('./playlist.json' + cacheBust);
+        } catch (e) {
+          response = await fetch('playlist.json' + cacheBust);
+        }
+
+        if (!response.ok) throw new Error('Falha ao obter playlist.json');
 
         playlist = await response.json();
         renderHomeGenres();
@@ -614,7 +628,9 @@
         }
       } catch (err) {
         console.error('Erro ao carregar dados:', err);
-        document.getElementById('home-screen').innerHTML = '<p style="text-align:center; color:#71717a;">Erro ao carregar programação.</p>';
+        if (homeScreen) {
+          homeScreen.innerHTML = '<p style="text-align:center; color:#a1a1aa; padding: 20px 0;">Erro ao carregar lista de rádios. Verifique a conexão.</p>';
+        }
       }
     }
 
@@ -625,7 +641,7 @@
       const genres = [...new Set(playlist.map(item => item.genre).filter(Boolean))];
 
       let html = `
-        <div class="genre-card" onclick="startRadio('Todos', true)">
+        <div class="genre-card" tabindex="0" onclick="startRadio('Todos', true)" onkeydown="if(event.key==='Enter') startRadio('Todos', true)">
           <div class="genre-name">Ouvir todas as rádios</div>
           <div class="genre-icon">→</div>
         </div>
@@ -633,7 +649,7 @@
 
       genres.forEach(genre => {
         html += `
-          <div class="genre-card" onclick="startRadio('${genre}', true)">
+          <div class="genre-card" tabindex="0" onclick="startRadio('${genre}', true)" onkeydown="if(event.key==='Enter') startRadio('${genre}', true)">
             <div class="genre-name">${genre}</div>
             <div class="genre-icon">→</div>
           </div>
@@ -644,12 +660,10 @@
     }
 
     function startRadio(genre, isUserAction = true) {
-      // Se for a mesma rádio e o usuário só está navegando de volta do mini player, preserva o estado
       if (selectedGenreGlobal === genre && currentTrack && isUserAction && document.getElementById('player-screen').style.display === 'flex') {
         return;
       }
 
-      // Ao mudar de rádio/estilo, ZERA O HISTÓRICO completamente
       selectedGenreGlobal = genre;
       playedHistory = [];
       currentTrack = null;
@@ -670,7 +684,7 @@
       poolPlaylist = shuffleArray([...baseList]);
       showPlayerScreen(genre);
 
-      // Inicia a primeira música sem adicionar nada ao histórico ainda
+      // Toca a faixa e força o autoplay automático mesmo ao abrir/recarregar
       playNextRandomTrack(false);
     }
 
@@ -689,9 +703,6 @@
     }
 
     async function playNextRandomTrack(isAutoNext = true) {
-      // REGISTRO APENAS NA MUDANÇA AUTOMÁTICA
-      // Se a chamada veio da transição automática do término da música (isAutoNext === true),
-      // a música que acabou de terminar vai para o histórico.
       if (isAutoNext && currentTrack) {
         playedHistory.unshift(currentTrack);
       }
@@ -705,11 +716,9 @@
 
       currentTrack = poolPlaylist.pop();
 
-      // Atualiza Player Principal
       document.getElementById('current-title').innerText = currentTrack.title || 'Sem título';
       document.getElementById('current-artist').innerText = currentTrack.artist || 'Artista desconhecido';
 
-      // Atualiza Mini Player
       document.getElementById('mini-title').innerText = currentTrack.title || 'Sem título';
       document.getElementById('mini-artist').innerText = currentTrack.artist || 'Artista desconhecido';
       
@@ -794,33 +803,47 @@
     }
 
     function playAudio() {
-      audioElement.play().then(() => {
-        isPlaying = true;
-        document.getElementById('svg-play').style.display = 'none';
-        document.getElementById('svg-pause').style.display = 'block';
-        document.getElementById('soundwave').classList.add('playing');
+      const promise = audioElement.play();
+      if (promise !== undefined) {
+        promise.then(() => {
+          isPlaying = true;
+          document.getElementById('svg-play').style.display = 'none';
+          document.getElementById('svg-pause').style.display = 'block';
+          document.getElementById('soundwave').classList.add('playing');
 
-        document.getElementById('mini-svg-play').style.display = 'none';
-        document.getElementById('mini-svg-pause').style.display = 'block';
-        document.getElementById('mini-soundwave').classList.add('playing');
-      }).catch(() => {
-        isPlaying = false;
-        document.getElementById('svg-play').style.display = 'block';
-        document.getElementById('svg-pause').style.display = 'none';
-        document.getElementById('soundwave').classList.remove('playing');
+          document.getElementById('mini-svg-play').style.display = 'none';
+          document.getElementById('mini-svg-pause').style.display = 'block';
+          document.getElementById('mini-soundwave').classList.add('playing');
+        }).catch((error) => {
+          console.warn("Autoplay impedido pelo navegador. Aguardando interação:", error);
+          isPlaying = false;
+          document.getElementById('svg-play').style.display = 'block';
+          document.getElementById('svg-pause').style.display = 'none';
+          document.getElementById('soundwave').classList.remove('playing');
 
-        document.getElementById('mini-svg-play').style.display = 'block';
-        document.getElementById('mini-svg-pause').style.display = 'none';
-        document.getElementById('mini-soundwave').classList.remove('playing');
+          document.getElementById('mini-svg-play').style.display = 'block';
+          document.getElementById('mini-svg-pause').style.display = 'none';
+          document.getElementById('mini-soundwave').classList.remove('playing');
 
-        const enableAudioOnTouch = () => {
-          audioElement.play();
-          window.removeEventListener('click', enableAudioOnTouch);
-          window.removeEventListener('touchstart', enableAudioOnTouch);
-        };
-        window.addEventListener('click', enableAudioOnTouch);
-        window.addEventListener('touchstart', enableAudioOnTouch);
-      });
+          // Fallback para disparar o áudio no primeiro clique ou toque em qualquer lugar da tela
+          const triggerPlayOnUserAction = () => {
+            audioElement.play().then(() => {
+              isPlaying = true;
+              document.getElementById('svg-play').style.display = 'none';
+              document.getElementById('svg-pause').style.display = 'block';
+              document.getElementById('soundwave').classList.add('playing');
+            }).catch(() => {});
+            
+            window.removeEventListener('click', triggerPlayOnUserAction);
+            window.removeEventListener('touchstart', triggerPlayOnUserAction);
+            window.removeEventListener('keydown', triggerPlayOnUserAction);
+          };
+
+          window.addEventListener('click', triggerPlayOnUserAction);
+          window.addEventListener('touchstart', triggerPlayOnUserAction);
+          window.addEventListener('keydown', triggerPlayOnUserAction);
+        });
+      }
     }
 
     function pauseAudio() {
@@ -878,8 +901,6 @@
         }
       });
 
-      // QUANDO A MÚSICA TERMINA NATURALEZA (AUTO NEXT):
-      // Passa true para registrar a música que acabou no histórico
       audioElement.addEventListener('ended', () => {
         playNextRandomTrack(true);
       });
