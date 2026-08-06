@@ -79,7 +79,6 @@
       margin-top: 2px;
     }
 
-    /* TELA 1: SELEÇÃO DE GÊNEROS / RÁDIOS */
     #home-screen {
       flex: 1;
       display: flex;
@@ -123,7 +122,6 @@
       color: var(--text-muted);
     }
 
-    /* MINI PLAYER NA TELA INICIAL */
     .mini-player {
       display: none;
       background: var(--card-bg);
@@ -175,7 +173,6 @@
       gap: 10px;
     }
 
-    /* TELA 2: PLAYER & HISTÓRICO */
     #player-screen {
       display: none;
       flex-direction: column;
@@ -203,7 +200,6 @@
       outline: none;
     }
 
-    /* CARD DO PLAYER COMPACTO */
     .player-card-compact {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
@@ -250,7 +246,6 @@
       animation: pulse 2s infinite;
     }
 
-    /* ONDA SONORA / SOUNDWAVE ANIMATION */
     .soundwave {
       display: flex;
       align-items: flex-end;
@@ -312,7 +307,6 @@
       margin-top: 2px;
     }
 
-    /* BOTÃO PLAY/PAUSE ULTRA CLEAN E NEUTRO */
     button.btn-play-compact {
       background: #27272a;
       border: 1px solid #3f3f46;
@@ -360,7 +354,6 @@
       height: 14px;
     }
 
-    /* SEÇÃO HISTÓRICO AJUSTADA COM SCROLL PRÓPRIO */
     .history-section {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
@@ -468,12 +461,10 @@
 
     <audio id="audio-element" controls preload="auto"></audio>
 
-    <!-- TELA 1: LISTA DE ESTILOS -->
     <div id="home-screen">
-      <!-- Cards inseridos via JS -->
+      <!-- Lista de Rádios -->
     </div>
 
-    <!-- MINI PLAYER NA TELA INICIAL -->
     <div class="mini-player" id="mini-player" tabindex="0" onclick="restorePlayerFromMini()">
       <div class="mini-player-info">
         <div class="mini-player-title" id="mini-title">Música Atual</div>
@@ -498,7 +489,6 @@
       </div>
     </div>
 
-    <!-- TELA 2: TRANSMISSÃO -->
     <div id="player-screen">
       <button class="btn-back" id="back-btn">← Trocar Rádio</button>
 
@@ -605,10 +595,8 @@
     async function loadPlaylist() {
       const homeScreen = document.getElementById('home-screen');
       try {
-        // Suporte para TV Box e navegadores com restrição de caminho
         const cacheBust = '?v=' + new Date().getTime();
         let response;
-        
         try {
           response = await fetch('./playlist.json' + cacheBust);
         } catch (e) {
@@ -620,16 +608,23 @@
         playlist = await response.json();
         renderHomeGenres();
 
-        const savedState = localStorage.getItem('radio_active_view');
-        const savedGenre = localStorage.getItem('radio_selected_genre');
+        // Verifica se a navegação foi um recarregamento de página (F5/Refresh)
+        const navigationType = performance.getEntriesByType("navigation")[0]?.type;
+        const savedGenre = sessionStorage.getItem('radio_selected_genre');
+        const savedTrackRaw = sessionStorage.getItem('radio_current_track');
 
-        if (savedState === 'player' && savedGenre) {
-          startRadio(savedGenre, false);
+        if (navigationType === 'reload' && savedGenre && savedTrackRaw) {
+          const savedTrack = JSON.parse(savedTrackRaw);
+          resumeRadioOnReload(savedGenre, savedTrack);
+        } else {
+          // Se for uma nova sessão/abertura, limpa e vai para a Home
+          sessionStorage.clear();
+          showHomeScreen();
         }
       } catch (err) {
         console.error('Erro ao carregar dados:', err);
         if (homeScreen) {
-          homeScreen.innerHTML = '<p style="text-align:center; color:#a1a1aa; padding: 20px 0;">Erro ao carregar lista de rádios. Verifique a conexão.</p>';
+          homeScreen.innerHTML = '<p style="text-align:center; color:#a1a1aa; padding: 20px 0;">Erro ao carregar lista de rádios.</p>';
         }
       }
     }
@@ -667,9 +662,8 @@
       selectedGenreGlobal = genre;
       playedHistory = [];
       currentTrack = null;
-      
-      localStorage.setItem('radio_active_view', 'player');
-      localStorage.setItem('radio_selected_genre', genre);
+
+      sessionStorage.setItem('radio_selected_genre', genre);
 
       if (history.state?.view !== 'player') {
         history.pushState({ view: 'player' }, '');
@@ -684,8 +678,48 @@
       poolPlaylist = shuffleArray([...baseList]);
       showPlayerScreen(genre);
 
-      // Toca a faixa e força o autoplay automático mesmo ao abrir/recarregar
       playNextRandomTrack(false);
+    }
+
+    // Função responsável por restaurar a rádio e a música ao dar Refresh (F5)
+    async function resumeRadioOnReload(genre, track) {
+      selectedGenreGlobal = genre;
+      currentTrack = track;
+      playedHistory = [];
+
+      const baseList = (genre === 'Todos') 
+        ? [...playlist] 
+        : playlist.filter(item => item.genre === genre);
+
+      poolPlaylist = shuffleArray(baseList.filter(item => item.url !== track.url));
+
+      showPlayerScreen(genre);
+
+      document.getElementById('current-title').innerText = currentTrack.title || 'Sem título';
+      document.getElementById('current-artist').innerText = currentTrack.artist || 'Artista desconhecido';
+
+      document.getElementById('mini-title').innerText = currentTrack.title || 'Sem título';
+      document.getElementById('mini-artist').innerText = currentTrack.artist || 'Artista desconhecido';
+      
+      if (selectedGenreGlobal === 'Todos') {
+        document.getElementById('current-genre').innerText = currentTrack.genre || 'Geral';
+      }
+
+      renderHistoryUI();
+      updateMediaSession(currentTrack);
+
+      try {
+        if (currentTrack.isDash) {
+          await shakaPlayer.load(currentTrack.url);
+        } else {
+          await shakaPlayer.unload();
+          audioElement.src = currentTrack.url;
+        }
+
+        playAudio();
+      } catch (err) {
+        onError(err);
+      }
     }
 
     function showPlayerScreen(genre) {
@@ -715,6 +749,9 @@
       }
 
       currentTrack = poolPlaylist.pop();
+
+      // Salva a música atual no sessionStorage para aguentar recarregamentos da página
+      sessionStorage.setItem('radio_current_track', JSON.stringify(currentTrack));
 
       document.getElementById('current-title').innerText = currentTrack.title || 'Sem título';
       document.getElementById('current-artist').innerText = currentTrack.artist || 'Artista desconhecido';
@@ -783,7 +820,6 @@
     }
 
     function showHomeScreen() {
-      localStorage.setItem('radio_active_view', 'home');
       document.getElementById('player-screen').style.display = 'none';
       document.getElementById('home-screen').style.display = 'flex';
       document.getElementById('page-subtitle').innerText = 'Selecione uma sintonia';
@@ -815,8 +851,9 @@
           document.getElementById('mini-svg-pause').style.display = 'block';
           document.getElementById('mini-soundwave').classList.add('playing');
         }).catch((error) => {
-          console.warn("Autoplay impedido pelo navegador. Aguardando interação:", error);
+          console.warn("Autoplay bloqueado pelo navegador. Aguardando interação:", error);
           isPlaying = false;
+          
           document.getElementById('svg-play').style.display = 'block';
           document.getElementById('svg-pause').style.display = 'none';
           document.getElementById('soundwave').classList.remove('playing');
@@ -825,23 +862,22 @@
           document.getElementById('mini-svg-pause').style.display = 'none';
           document.getElementById('mini-soundwave').classList.remove('playing');
 
-          // Fallback para disparar o áudio no primeiro clique ou toque em qualquer lugar da tela
-          const triggerPlayOnUserAction = () => {
+          const unlockAudioOnInteraction = () => {
             audioElement.play().then(() => {
               isPlaying = true;
               document.getElementById('svg-play').style.display = 'none';
               document.getElementById('svg-pause').style.display = 'block';
               document.getElementById('soundwave').classList.add('playing');
             }).catch(() => {});
-            
-            window.removeEventListener('click', triggerPlayOnUserAction);
-            window.removeEventListener('touchstart', triggerPlayOnUserAction);
-            window.removeEventListener('keydown', triggerPlayOnUserAction);
+
+            window.removeEventListener('click', unlockAudioOnInteraction);
+            window.removeEventListener('touchstart', unlockAudioOnInteraction);
+            window.removeEventListener('keydown', unlockAudioOnInteraction);
           };
 
-          window.addEventListener('click', triggerPlayOnUserAction);
-          window.addEventListener('touchstart', triggerPlayOnUserAction);
-          window.addEventListener('keydown', triggerPlayOnUserAction);
+          window.addEventListener('click', unlockAudioOnInteraction, { once: true });
+          window.addEventListener('touchstart', unlockAudioOnInteraction, { once: true });
+          window.addEventListener('keydown', unlockAudioOnInteraction, { once: true });
         });
       }
     }
