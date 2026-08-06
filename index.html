@@ -472,7 +472,7 @@
       <!-- Lista de Rádios -->
     </div>
 
-    <!-- Mini-Player na Tela Principal (Agora com Ao Vivo + Gênero) -->
+    <!-- Mini-Player da Tela Principal (Tag de Gênero Sempre Visível) -->
     <div class="mini-player" id="mini-player" tabindex="0" onclick="restorePlayerFromMini()">
       <div class="mini-player-info">
         <div class="live-badge-row">
@@ -490,7 +490,7 @@
           <div class="mini-player-title" id="mini-title">Música Atual</div>
         </div>
         <div class="mini-player-subtitle" id="mini-artist">Artista</div>
-        <div class="track-genre" id="mini-genre" style="display: none;">Gênero</div>
+        <div class="track-genre" id="mini-genre">Gênero</div>
       </div>
       <div class="mini-player-controls" onclick="event.stopPropagation()">
         <button class="btn-play-compact mini" id="mini-play-btn" title="Reproduzir / Pausar">
@@ -744,7 +744,7 @@
       document.getElementById('mini-title').innerText = currentTrack.title || 'Sem título';
       document.getElementById('mini-artist').innerText = currentTrack.artist || 'Artista desconhecido';
 
-      // Exibição da Tag do Gênero (Player Expandido)
+      // Tag do Gênero no Player Expandido (exibe apenas se estivar no modo 'Ouvir Todas')
       var genreBadge = document.getElementById('current-genre');
       if (selectedGenreGlobal === 'Todos' && currentTrack.genre) {
         genreBadge.innerText = currentTrack.genre;
@@ -753,10 +753,11 @@
         genreBadge.style.display = 'none';
       }
 
-      // Exibição da Tag do Gênero (Mini-Player na Tela Principal)
+      // Tag do Gênero no Mini-Player da Tela Inicial (Sempre exibe a tag ativa)
       var miniGenreBadge = document.getElementById('mini-genre');
-      if (selectedGenreGlobal === 'Todos' && currentTrack.genre) {
-        miniGenreBadge.innerText = currentTrack.genre;
+      var activeGenreText = (selectedGenreGlobal === 'Todos') ? (currentTrack.genre || 'Geral') : selectedGenreGlobal;
+      if (activeGenreText) {
+        miniGenreBadge.innerText = activeGenreText;
         miniGenreBadge.style.display = 'inline-block';
       } else {
         miniGenreBadge.style.display = 'none';
