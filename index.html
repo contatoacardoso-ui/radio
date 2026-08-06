@@ -365,7 +365,7 @@
       display: flex;
       flex-direction: column;
       flex: 1;
-      min-height: 0; /* Essencial para conter o flex sem estourar a tela */
+      min-height: 0;
       overflow: hidden;
     }
 
@@ -496,7 +496,7 @@
 
     <!-- TELA 2: TRANSMISSÃO -->
     <div id="player-screen">
-      <button class="btn-back" id="back-btn">← Sintonizar outro estilo</button>
+      <button class="btn-back" id="back-btn">← Trocar Rádio</button>
 
       <div class="player-card-compact">
         <div class="player-left">
@@ -686,7 +686,6 @@
     }
 
     async function playNextRandomTrack() {
-      // Se já havia uma música tocando, move ela para o histórico (A MÚSICA ATUAL NÃO FICA NO HISTÓRICO)
       if (currentTrack) {
         playedHistory.unshift(currentTrack);
       }
@@ -700,11 +699,9 @@
 
       currentTrack = poolPlaylist.pop();
 
-      // Atualiza Player Principal
       document.getElementById('current-title').innerText = currentTrack.title || 'Sem título';
       document.getElementById('current-artist').innerText = currentTrack.artist || 'Artista desconhecido';
 
-      // Atualiza Mini Player
       document.getElementById('mini-title').innerText = currentTrack.title || 'Sem título';
       document.getElementById('mini-artist').innerText = currentTrack.artist || 'Artista desconhecido';
       
@@ -774,7 +771,6 @@
       document.getElementById('home-screen').style.display = 'flex';
       document.getElementById('page-subtitle').innerText = 'Selecione uma sintonia';
 
-      // Se houver áudio sendo transmitido, exibe o mini-player discreto na tela inicial
       if (currentTrack) {
         document.getElementById('mini-player').style.display = 'flex';
       } else {
@@ -792,23 +788,19 @@
     function playAudio() {
       audioElement.play().then(() => {
         isPlaying = true;
-        // Botão Principal
         document.getElementById('svg-play').style.display = 'none';
         document.getElementById('svg-pause').style.display = 'block';
         document.getElementById('soundwave').classList.add('playing');
 
-        // Mini Player
         document.getElementById('mini-svg-play').style.display = 'none';
         document.getElementById('mini-svg-pause').style.display = 'block';
         document.getElementById('mini-soundwave').classList.add('playing');
       }).catch(() => {
         isPlaying = false;
-        // Botão Principal
         document.getElementById('svg-play').style.display = 'block';
         document.getElementById('svg-pause').style.display = 'none';
         document.getElementById('soundwave').classList.remove('playing');
 
-        // Mini Player
         document.getElementById('mini-svg-play').style.display = 'block';
         document.getElementById('mini-svg-pause').style.display = 'none';
         document.getElementById('mini-soundwave').classList.remove('playing');
@@ -826,12 +818,10 @@
     function pauseAudio() {
       audioElement.pause();
       isPlaying = false;
-      // Botão Principal
       document.getElementById('svg-play').style.display = 'block';
       document.getElementById('svg-pause').style.display = 'none';
       document.getElementById('soundwave').classList.remove('playing');
 
-      // Mini Player
       document.getElementById('mini-svg-play').style.display = 'block';
       document.getElementById('mini-svg-pause').style.display = 'none';
       document.getElementById('mini-soundwave').classList.remove('playing');
