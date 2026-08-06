@@ -56,7 +56,8 @@
       display: flex;
       flex-direction: column;
       padding: 16px;
-      gap: 16px;
+      gap: 12px;
+      position: relative;
     }
 
     header {
@@ -88,6 +89,7 @@
       padding-right: 2px;
       touch-action: pan-y;
       -webkit-overflow-scrolling: touch;
+      min-height: 0;
     }
 
     .genre-card {
@@ -119,12 +121,64 @@
       color: var(--text-muted);
     }
 
+    /* MINI PLAYER NA TELA INICIAL */
+    .mini-player {
+      display: none;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 10px 14px;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+      flex-shrink: 0;
+      animation: slideUp 0.25s ease-out;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(10px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .mini-player-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      overflow: hidden;
+      flex: 1;
+      margin-right: 12px;
+    }
+
+    .mini-player-title {
+      font-size: 0.825rem;
+      font-weight: 600;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .mini-player-subtitle {
+      font-size: 0.725rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .mini-player-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
     /* TELA 2: PLAYER & HISTÓRICO */
     #player-screen {
       display: none;
       flex-direction: column;
       flex: 1;
-      gap: 14px;
+      gap: 12px;
       min-height: 0;
     }
 
@@ -150,7 +204,7 @@
     .player-card-compact {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      padding: 16px 18px;
+      padding: 14px 16px;
       border-radius: 14px;
       display: flex;
       align-items: center;
@@ -260,8 +314,8 @@
       background: #27272a;
       border: 1px solid #3f3f46;
       color: #f4f4f5;
-      width: 46px;
-      height: 46px;
+      width: 42px;
+      height: 42px;
       border-radius: 50%;
       cursor: pointer;
       display: flex;
@@ -269,6 +323,11 @@
       justify-content: center;
       flex-shrink: 0;
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    button.btn-play-compact.mini {
+      width: 36px;
+      height: 36px;
     }
 
     button.btn-play-compact:hover {
@@ -283,8 +342,8 @@
     }
 
     button.btn-play-compact svg {
-      width: 20px;
-      height: 20px;
+      width: 18px;
+      height: 18px;
       fill: none;
       stroke: currentColor;
       stroke-width: 2;
@@ -292,22 +351,28 @@
       stroke-linejoin: round;
     }
 
-    /* SEÇÃO HISTÓRICO COM SCROLL PRÓPRIO */
+    button.btn-play-compact.mini svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    /* SEÇÃO HISTÓRICO AJUSTADA COM SCROLL PRÓPRIO */
     .history-section {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      padding: 16px;
+      padding: 14px 16px;
       border-radius: 14px;
       display: flex;
       flex-direction: column;
       flex: 1;
-      min-height: 0;
+      min-height: 0; /* Essencial para conter o flex sem estourar a tela */
+      overflow: hidden;
     }
 
     .history-title {
       font-size: 0.7rem;
       color: var(--text-muted);
-      margin-bottom: 10px;
+      margin-bottom: 8px;
       text-transform: uppercase;
       letter-spacing: 0.08em;
       font-weight: 600;
@@ -341,16 +406,10 @@
       justify-content: space-between;
       align-items: center;
       padding: 8px 10px;
-      background: transparent;
+      background: #202024;
       border-radius: 6px;
-      border-left: 2px solid transparent;
       transition: background 0.15s;
       flex-shrink: 0;
-    }
-
-    .history-item.now-playing {
-      background: #202024;
-      border-left-color: var(--accent);
     }
 
     .history-item-info {
@@ -383,6 +442,13 @@
       margin-left: 8px;
     }
 
+    .empty-history {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.775rem;
+      padding: 16px 0;
+    }
+
     audio {
       display: none;
     }
@@ -401,6 +467,31 @@
     <!-- TELA 1: LISTA DE ESTILOS -->
     <div id="home-screen">
       <!-- Cards inseridos via JS -->
+    </div>
+
+    <!-- MINI PLAYER NA TELA INICIAL (QUANDO NAVEGAR DE VOLTA) -->
+    <div class="mini-player" id="mini-player" onclick="restorePlayerFromMini()">
+      <div class="mini-player-info">
+        <div class="mini-player-title" id="mini-title">Música Atual</div>
+        <div class="mini-player-subtitle" id="mini-artist">Artista</div>
+      </div>
+      <div class="mini-player-controls" onclick="event.stopPropagation()">
+        <div class="soundwave" id="mini-soundwave">
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+        </div>
+        <button class="btn-play-compact mini" id="mini-play-btn" title="Reproduzir / Pausar">
+          <svg id="mini-svg-play" viewBox="0 0 24 24">
+            <polygon points="6 3 20 12 6 21 6 3" fill="currentColor" stroke="none"></polygon>
+          </svg>
+          <svg id="mini-svg-pause" viewBox="0 0 24 24" style="display: none;">
+            <rect x="6" y="4" width="4" height="16" rx="1" fill="currentColor" stroke="none"></rect>
+            <rect x="14" y="4" width="4" height="16" rx="1" fill="currentColor" stroke="none"></rect>
+          </svg>
+        </button>
+      </div>
     </div>
 
     <!-- TELA 2: TRANSMISSÃO -->
@@ -427,11 +518,9 @@
         </div>
 
         <button class="btn-play-compact" id="play-btn" title="Reproduzir / Pausar">
-          <!-- Ícone Play Minimalista -->
           <svg id="svg-play" viewBox="0 0 24 24">
             <polygon points="6 3 20 12 6 21 6 3" fill="currentColor" stroke="none"></polygon>
           </svg>
-          <!-- Ícone Pause Minimalista -->
           <svg id="svg-pause" viewBox="0 0 24 24" style="display: none;">
             <rect x="6" y="4" width="4" height="16" rx="1" fill="currentColor" stroke="none"></rect>
             <rect x="14" y="4" width="4" height="16" rx="1" fill="currentColor" stroke="none"></rect>
@@ -466,41 +555,28 @@
       loadPlaylist();
     });
 
-    // Bloqueia rigorosamente qualquer tipo de zoom (iOS Safari / Android Chrome / WebViews)
     function blockAllZoom() {
-      // 1. Bloqueia gesto de pinça (pinch zoom) no Safari iOS
       document.addEventListener('gesturestart', (e) => e.preventDefault(), { passive: false });
       document.addEventListener('gesturechange', (e) => e.preventDefault(), { passive: false });
       document.addEventListener('gestureend', (e) => e.preventDefault(), { passive: false });
 
-      // 2. Bloqueia multi-touch (2 ou mais dedos na tela)
       document.addEventListener('touchstart', (e) => {
-        if (e.touches.length > 1) {
-          e.preventDefault();
-        }
+        if (e.touches.length > 1) e.preventDefault();
       }, { passive: false });
 
       document.addEventListener('touchmove', (e) => {
-        if (e.touches.length > 1) {
-          e.preventDefault();
-        }
+        if (e.touches.length > 1) e.preventDefault();
       }, { passive: false });
 
-      // 3. Bloqueia toque duplo rápido (double-tap zoom)
       let lastTouchTime = 0;
       document.addEventListener('touchend', (e) => {
         const now = Date.now();
-        if (now - lastTouchTime <= 300) {
-          e.preventDefault();
-        }
+        if (now - lastTouchTime <= 300) e.preventDefault();
         lastTouchTime = now;
       }, { passive: false });
 
-      // 4. Bloqueia Zoom com roda do mouse / atalhos Ctrl/Cmd + e Ctrl/Cmd - em desktops
       document.addEventListener('wheel', (e) => {
-        if (e.ctrlKey) {
-          e.preventDefault();
-        }
+        if (e.ctrlKey) e.preventDefault();
       }, { passive: false });
 
       document.addEventListener('keydown', (e) => {
@@ -597,6 +673,7 @@
 
     function showPlayerScreen(genre) {
       document.getElementById('home-screen').style.display = 'none';
+      document.getElementById('mini-player').style.display = 'none';
       document.getElementById('player-screen').style.display = 'flex';
       document.getElementById('page-subtitle').innerText = genre === 'Todos' ? 'Todas as Rádios' : `${genre}`;
 
@@ -609,6 +686,11 @@
     }
 
     async function playNextRandomTrack() {
+      // Se já havia uma música tocando, move ela para o histórico (A MÚSICA ATUAL NÃO FICA NO HISTÓRICO)
+      if (currentTrack) {
+        playedHistory.unshift(currentTrack);
+      }
+
       if (poolPlaylist.length === 0) {
         const baseList = (selectedGenreGlobal === 'Todos') 
           ? [...playlist] 
@@ -617,10 +699,14 @@
       }
 
       currentTrack = poolPlaylist.pop();
-      playedHistory.unshift(currentTrack);
 
+      // Atualiza Player Principal
       document.getElementById('current-title').innerText = currentTrack.title || 'Sem título';
       document.getElementById('current-artist').innerText = currentTrack.artist || 'Artista desconhecido';
+
+      // Atualiza Mini Player
+      document.getElementById('mini-title').innerText = currentTrack.title || 'Sem título';
+      document.getElementById('mini-artist').innerText = currentTrack.artist || 'Artista desconhecido';
       
       if (selectedGenreGlobal === 'Todos') {
         document.getElementById('current-genre').innerText = currentTrack.genre || 'Geral';
@@ -666,8 +752,13 @@
       const container = document.getElementById('history-list');
       if (!container) return;
 
-      container.innerHTML = playedHistory.map((track, idx) => `
-        <div class="history-item ${idx === 0 ? 'now-playing' : ''}">
+      if (playedHistory.length === 0) {
+        container.innerHTML = `<div class="empty-history">Primeira faixa da sintonia atual</div>`;
+        return;
+      }
+
+      container.innerHTML = playedHistory.map((track) => `
+        <div class="history-item">
           <div class="history-item-info">
             <div class="history-item-title">${track.title}</div>
             <div class="history-item-artist">${track.artist}</div>
@@ -682,19 +773,45 @@
       document.getElementById('player-screen').style.display = 'none';
       document.getElementById('home-screen').style.display = 'flex';
       document.getElementById('page-subtitle').innerText = 'Selecione uma sintonia';
+
+      // Se houver áudio sendo transmitido, exibe o mini-player discreto na tela inicial
+      if (currentTrack) {
+        document.getElementById('mini-player').style.display = 'flex';
+      } else {
+        document.getElementById('mini-player').style.display = 'none';
+      }
+    }
+
+    function restorePlayerFromMini() {
+      showPlayerScreen(selectedGenreGlobal);
+      if (history.state?.view !== 'player') {
+        history.pushState({ view: 'player' }, '');
+      }
     }
 
     function playAudio() {
       audioElement.play().then(() => {
         isPlaying = true;
+        // Botão Principal
         document.getElementById('svg-play').style.display = 'none';
         document.getElementById('svg-pause').style.display = 'block';
         document.getElementById('soundwave').classList.add('playing');
+
+        // Mini Player
+        document.getElementById('mini-svg-play').style.display = 'none';
+        document.getElementById('mini-svg-pause').style.display = 'block';
+        document.getElementById('mini-soundwave').classList.add('playing');
       }).catch(() => {
         isPlaying = false;
+        // Botão Principal
         document.getElementById('svg-play').style.display = 'block';
         document.getElementById('svg-pause').style.display = 'none';
         document.getElementById('soundwave').classList.remove('playing');
+
+        // Mini Player
+        document.getElementById('mini-svg-play').style.display = 'block';
+        document.getElementById('mini-svg-pause').style.display = 'none';
+        document.getElementById('mini-soundwave').classList.remove('playing');
 
         const enableAudioOnTouch = () => {
           audioElement.play();
@@ -709,9 +826,15 @@
     function pauseAudio() {
       audioElement.pause();
       isPlaying = false;
+      // Botão Principal
       document.getElementById('svg-play').style.display = 'block';
       document.getElementById('svg-pause').style.display = 'none';
       document.getElementById('soundwave').classList.remove('playing');
+
+      // Mini Player
+      document.getElementById('mini-svg-play').style.display = 'block';
+      document.getElementById('mini-svg-pause').style.display = 'none';
+      document.getElementById('mini-soundwave').classList.remove('playing');
     }
 
     function togglePlay() {
@@ -732,6 +855,11 @@
 
     function setupEventListeners() {
       document.getElementById('play-btn').addEventListener('click', togglePlay);
+      document.getElementById('mini-play-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        togglePlay();
+      });
+
       document.getElementById('back-btn').addEventListener('click', () => {
         if (history.state?.view === 'player') {
           history.back();
