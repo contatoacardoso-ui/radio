@@ -7,18 +7,17 @@
   <style>
     :root {
       --bg-color: #09090b;
-      --panel-bg: rgba(24, 24, 27, 0.75);
+      --panel-bg: rgba(24, 24, 27, 0.85);
       --card-bg: #18181b;
       --card-border: #27272a;
       --input-bg: #09090b;
       --text-main: #f4f4f5;
       --text-muted: #a1a1aa;
-      --accent: #3b82f6;
-      --accent-hover: #2563eb;
+      --accent: #22c55e;
       --danger: #f43f5e;
-      --danger-bg: rgba(244, 63, 94, 0.12);
+      --danger-bg: rgba(244, 63, 94, 0.15);
       --warning: #f59e0b;
-      --warning-bg: rgba(245, 158, 11, 0.12);
+      --warning-bg: rgba(245, 158, 11, 0.15);
     }
 
     * {
@@ -39,10 +38,44 @@
       min-height: 100vh;
     }
 
-    .admin-container {
-      width: 100%;
-      max-width: 520px;
+    /* Proteção de Login */
+    #lock-screen {
       display: flex;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #09090b;
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .login-card {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 16px;
+      padding: 24px;
+      width: 100%;
+      max-width: 360px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+      text-align: center;
+    }
+
+    .login-card h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .admin-container {
+      display: none; /* Escondido até digitar a senha */
+      width: 100%;
+      max-width: 500px;
       flex-direction: column;
       gap: 18px;
     }
@@ -83,13 +116,11 @@
       cursor: pointer;
       transition: all 0.2s ease;
       outline: none;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
 
     .btn-icon:hover {
       background: #27272a;
       border-color: #52525b;
-      transform: translateY(-1px);
     }
 
     .btn-icon svg {
@@ -142,6 +173,7 @@
       display: flex;
       flex-direction: column;
       gap: 6px;
+      text-align: left;
     }
 
     label {
@@ -266,12 +298,6 @@
       border: 1px solid var(--card-border);
       padding: 12px 14px;
       border-radius: 12px;
-      transition: all 0.2s ease;
-    }
-
-    .track-item:hover {
-      border-color: #3f3f46;
-      background: #202024;
     }
 
     .track-info {
@@ -299,7 +325,6 @@
       text-overflow: ellipsis;
     }
 
-    /* Container de ações visível e alinhado */
     .track-actions {
       display: flex !important;
       align-items: center;
@@ -315,9 +340,6 @@
       padding: 7px 12px;
       border-radius: 8px;
       transition: all 0.2s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
     }
 
     .btn-action.edit {
@@ -376,12 +398,6 @@
       flex-direction: column;
       gap: 16px;
       box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
-      animation: modalFadeIn 0.2s ease-out;
-    }
-
-    @keyframes modalFadeIn {
-      from { transform: scale(0.95); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
     }
 
     .modal-header {
@@ -403,17 +419,27 @@
       color: var(--text-muted);
       font-size: 1.4rem;
       cursor: pointer;
-      line-height: 1;
-    }
-
-    .btn-close:hover {
-      color: var(--text-main);
     }
   </style>
 </head>
 <body>
 
-  <div class="admin-container">
+  <!-- TELA DE AUTENTICAÇÃO (SOLICITA SENHA EM CADA REFRESH) -->
+  <div id="lock-screen">
+    <div class="login-card">
+      <h2>Acesso Administrativo</h2>
+      <p style="font-size: 0.8rem; color: var(--text-muted);">Digite a senha para acessar o painel.</p>
+      <form onsubmit="autenticarPainel(event)">
+        <div class="form-group">
+          <input type="password" id="admin-pass" placeholder="Digite a senha" required autofocus>
+        </div>
+        <button type="submit" class="btn-primary" style="width: 100%; margin-top: 12px;">Acessar</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- CONTEÚDO DO PAINEL -->
+  <div class="admin-container" id="admin-main">
     <header>
       <div class="header-title">
         <h1>Central Admin</h1>
@@ -427,7 +453,7 @@
       </button>
     </header>
 
-    <!-- Formulário de Cadastro / Edição -->
+    <!-- Formulário de Lançamento / Edição -->
     <div class="card">
       <div class="card-header">
         <div class="card-title" id="form-card-title">Novo Lançamento</div>
@@ -475,7 +501,7 @@
     </div>
   </div>
 
-  <!-- Modal de Credenciais -->
+  <!-- Modal de Credenciais do GitHub -->
   <div class="modal-overlay" id="modal-config">
     <div class="modal-card">
       <div class="modal-header">
@@ -499,14 +525,26 @@
   </div>
 
   <script>
+    // DEFINE A SENHA DO PAINEL AQUI
+    var SENHA_MESTRE = "1234"; 
+
     var playlist = [];
     var ghConfig = { owner: '', repo: '', path: 'playlist.json', token: '' };
     var editingIndex = -1;
 
-    document.addEventListener('DOMContentLoaded', function() {
-      carregarConfiguracoesSalvas();
-      carregarPlaylistDoGitHub();
-    });
+    function autenticarPainel(event) {
+      event.preventDefault();
+      var passInput = document.getElementById('admin-pass').value;
+      if (passInput === SENHA_MESTRE) {
+        document.getElementById('lock-screen').style.display = 'none';
+        document.getElementById('admin-main').style.display = 'flex';
+        carregarConfiguracoesSalvas();
+        carregarPlaylistDoGitHub();
+      } else {
+        alert('Senha incorreta!');
+        document.getElementById('admin-pass').value = '';
+      }
+    }
 
     function abrirModalConfig() {
       document.getElementById('modal-config').style.display = 'flex';
@@ -556,7 +594,7 @@
       var listEl = document.getElementById('track-list');
 
       if (!ghConfig.owner || !ghConfig.repo) {
-        statusEl.innerHTML = 'Clique no ícone de <b>Engrenagem</b> acima para configurar o GitHub.';
+        statusEl.innerHTML = 'Clique no ícone de <b>Engrenagem</b> para configurar o GitHub.';
         listEl.innerHTML = '';
         return;
       }
