@@ -54,5 +54,12 @@
     "genre": "Rádio Rock",
     "url": "https://dl.mixcloud.stream/secure/c/m4a/64/d/c/4/6/55c4-d498-4cf8-b1af-131ca1c5e626.m4a?sig=lNSHUiQF1blPYXJUY3126g",
     "isDash": false
+  },
+  {
+    "title": "Um Show de Velha Guarda",
+    "artist": "Velha Guarda do Império Serrano",
+    "genre": "Rádio Brasilidade",
+    "url": "https://dl.mixcloud.stream/secure/c/m4a/64/7/1/e/8/9430-39f6-4b8e-a107-07fe4a3ee9f3.m4a?sig=DOennFdJ6sj_ZpWRfIZAqw",
+    "isDash": false
   }
 ]
