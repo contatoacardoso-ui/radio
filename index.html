@@ -127,7 +127,7 @@
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: 12px;
-      padding: 10px 14px;
+      padding: 12px 14px;
       align-items: center;
       justify-content: space-between;
       cursor: pointer;
@@ -144,7 +144,7 @@
     .mini-player-info {
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 3px;
       overflow: hidden;
       flex: 1;
       margin-right: 12px;
@@ -170,7 +170,7 @@
     }
 
     .mini-player-title {
-      font-size: 0.825rem;
+      font-size: 0.85rem;
     }
 
     .mini-player-subtitle, .track-artist {
@@ -182,7 +182,7 @@
     }
 
     .mini-player-subtitle {
-      font-size: 0.725rem;
+      font-size: 0.75rem;
     }
 
     .mini-player-controls {
@@ -244,6 +244,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      margin-bottom: 2px;
     }
 
     .live-badge {
@@ -329,8 +330,8 @@
     }
 
     button.btn-play-compact.mini {
-      width: 36px;
-      height: 36px;
+      width: 38px;
+      height: 38px;
     }
 
     button.btn-play-compact:hover, button.btn-play-compact:focus {
@@ -355,8 +356,8 @@
     }
 
     button.btn-play-compact.mini svg {
-      width: 14px;
-      height: 14px;
+      width: 15px;
+      height: 15px;
     }
 
     .history-section {
@@ -466,24 +467,32 @@
 
     <audio id="audio-element" controls preload="auto"></audio>
 
+    <!-- Tela Principal -->
     <div id="home-screen">
       <!-- Lista de Rádios -->
     </div>
 
+    <!-- Mini-Player na Tela Principal (Agora com Ao Vivo + Gênero) -->
     <div class="mini-player" id="mini-player" tabindex="0" onclick="restorePlayerFromMini()">
       <div class="mini-player-info">
+        <div class="live-badge-row">
+          <div class="live-badge">
+            <span class="live-dot"></span> Ao Vivo
+          </div>
+          <div class="soundwave" id="mini-soundwave">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+          </div>
+        </div>
         <div class="marquee-container">
           <div class="mini-player-title" id="mini-title">Música Atual</div>
         </div>
         <div class="mini-player-subtitle" id="mini-artist">Artista</div>
+        <div class="track-genre" id="mini-genre" style="display: none;">Gênero</div>
       </div>
       <div class="mini-player-controls" onclick="event.stopPropagation()">
-        <div class="soundwave" id="mini-soundwave">
-          <div class="bar"></div>
-          <div class="bar"></div>
-          <div class="bar"></div>
-          <div class="bar"></div>
-        </div>
         <button class="btn-play-compact mini" id="mini-play-btn" title="Reproduzir / Pausar">
           <svg id="mini-svg-play" viewBox="0 0 24 24">
             <polygon points="6 3 20 12 6 21 6 3" fill="currentColor" stroke="none"></polygon>
@@ -496,6 +505,7 @@
       </div>
     </div>
 
+    <!-- Tela Interna do Player -->
     <div id="player-screen">
       <button class="btn-back" id="back-btn">← Trocar Rádio</button>
 
@@ -726,18 +736,30 @@
     function updateTrackDisplay() {
       if (!currentTrack) return;
 
+      // Player Expandido
       document.getElementById('current-title').innerText = currentTrack.title || 'Sem título';
       document.getElementById('current-artist').innerText = currentTrack.artist || 'Artista desconhecido';
 
+      // Mini-Player (Tela Principal)
       document.getElementById('mini-title').innerText = currentTrack.title || 'Sem título';
       document.getElementById('mini-artist').innerText = currentTrack.artist || 'Artista desconhecido';
 
+      // Exibição da Tag do Gênero (Player Expandido)
       var genreBadge = document.getElementById('current-genre');
       if (selectedGenreGlobal === 'Todos' && currentTrack.genre) {
         genreBadge.innerText = currentTrack.genre;
         genreBadge.style.display = 'inline-block';
       } else {
         genreBadge.style.display = 'none';
+      }
+
+      // Exibição da Tag do Gênero (Mini-Player na Tela Principal)
+      var miniGenreBadge = document.getElementById('mini-genre');
+      if (selectedGenreGlobal === 'Todos' && currentTrack.genre) {
+        miniGenreBadge.innerText = currentTrack.genre;
+        miniGenreBadge.style.display = 'inline-block';
+      } else {
+        miniGenreBadge.style.display = 'none';
       }
 
       checkAndApplyMarquee('current-title');
@@ -771,13 +793,11 @@
     function startRadio(genre, isUserAction) {
       if (typeof isUserAction === 'undefined') isUserAction = true;
 
-      // Se clicar no mesmo gênero que já está ativo, apenas entra na tela
       if (selectedGenreGlobal === genre && currentTrack) {
         showPlayerScreen(genre);
         return;
       }
 
-      // NOVO GÊNERO SELECIONADO: Zera o histórico e reordena a lista
       selectedGenreGlobal = genre;
       playedHistory = [];
       currentTrack = null;
@@ -905,7 +925,7 @@
 
       if (currentTrack) {
         document.getElementById('mini-player').style.display = 'flex';
-        checkAndApplyMarquee('mini-title');
+        updateTrackDisplay();
       } else {
         document.getElementById('mini-player').style.display = 'none';
       }
@@ -948,6 +968,10 @@
               document.getElementById('svg-play').style.display = 'none';
               document.getElementById('svg-pause').style.display = 'block';
               document.getElementById('soundwave').classList.add('playing');
+
+              document.getElementById('mini-svg-play').style.display = 'none';
+              document.getElementById('mini-svg-pause').style.display = 'block';
+              document.getElementById('mini-soundwave').classList.add('playing');
             }).catch(function() {});
 
             window.removeEventListener('click', unlockAudioOnInteraction);
