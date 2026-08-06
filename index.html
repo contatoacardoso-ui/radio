@@ -150,10 +150,42 @@
       margin-right: 12px;
     }
 
-    .mini-player-title {
-      font-size: 0.825rem;
+    /* Container e animação do Marquee */
+    .marquee-container {
+      overflow: hidden;
+      white-space: nowrap;
+      width: 100%;
+      position: relative;
+    }
+
+    .track-title, .mini-player-title {
+      display: inline-block;
+      white-space: nowrap;
+      font-size: 0.95rem;
       font-weight: 600;
       color: var(--text-main);
+    }
+
+    .mini-player-title {
+      font-size: 0.825rem;
+    }
+
+    .marquee-active {
+      display: inline-block;
+      padding-left: 0;
+      animation: marquee-scroll 10s linear infinite;
+    }
+
+    @keyframes marquee-scroll {
+      0% { transform: translateX(0); }
+      15% { transform: translateX(0); }
+      85% { transform: translateX(calc(-100% + 180px)); }
+      100% { transform: translateX(0); }
+    }
+
+    .mini-player-subtitle, .track-artist {
+      font-size: 0.8rem;
+      color: var(--text-muted);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -161,10 +193,6 @@
 
     .mini-player-subtitle {
       font-size: 0.725rem;
-      color: var(--text-muted);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
 
     .mini-player-controls {
@@ -281,23 +309,6 @@
       0% { opacity: 1; }
       50% { opacity: 0.3; }
       100% { opacity: 1; }
-    }
-
-    .track-title {
-      font-size: 0.95rem;
-      font-weight: 600;
-      color: var(--text-main);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .track-artist {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
 
     .track-genre {
@@ -462,12 +473,14 @@
     <audio id="audio-element" controls preload="auto"></audio>
 
     <div id="home-screen">
-      <!-- Lista de Rádios -->
+      <!-- Lista de Rádios carregada via JS -->
     </div>
 
     <div class="mini-player" id="mini-player" tabindex="0" onclick="restorePlayerFromMini()">
       <div class="mini-player-info">
-        <div class="mini-player-title" id="mini-title">Música Atual</div>
+        <div class="marquee-container">
+          <div class="mini-player-title" id="mini-title">Música Atual</div>
+        </div>
         <div class="mini-player-subtitle" id="mini-artist">Artista</div>
       </div>
       <div class="mini-player-controls" onclick="event.stopPropagation()">
@@ -506,7 +519,9 @@
             </div>
           </div>
 
-          <div class="track-title" id="current-title">Sintonizando...</div>
+          <div class="marquee-container">
+            <div class="track-title" id="current-title">Sintonizando...</div>
+          </div>
           <div class="track-artist" id="current-artist">-</div>
           <div class="track-genre" id="current-genre" style="display: none;">Gênero</div>
         </div>
@@ -652,8 +667,21 @@
       homeScreen.innerHTML = html;
     }
 
+    function checkAndApplyMarquee(elementId) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+
+      el.classList.remove('marquee-active');
+
+      if (el.scrollWidth > el.parentElement.clientWidth) {
+        requestAnimationFrame(() => {
+          el.classList.add('marquee-active');
+        });
+      }
+    }
+
     function startRadio(genre, isUserAction = true) {
-      // SE JÁ ESTIVER TOCANDO A MESMA RÁDIO, APENAS REABRE O PLAYER SEM REINICIAR A MÚSICA
+      // Se a rádio clicada for a que já está tocando, reabre o player sem reiniciar
       if (selectedGenreGlobal === genre && currentTrack) {
         showPlayerScreen(genre);
         return;
@@ -700,6 +728,9 @@
       document.getElementById('mini-title').innerText = currentTrack.title || 'Sem título';
       document.getElementById('mini-artist').innerText = currentTrack.artist || 'Artista desconhecido';
       
+      checkAndApplyMarquee('current-title');
+      checkAndApplyMarquee('mini-title');
+
       if (selectedGenreGlobal === 'Todos') {
         document.getElementById('current-genre').innerText = currentTrack.genre || 'Geral';
       }
@@ -733,6 +764,8 @@
       } else {
         genreBadge.style.display = 'none';
       }
+
+      checkAndApplyMarquee('current-title');
     }
 
     async function playNextRandomTrack(isAutoNext = true) {
@@ -757,6 +790,9 @@
       document.getElementById('mini-title').innerText = currentTrack.title || 'Sem título';
       document.getElementById('mini-artist').innerText = currentTrack.artist || 'Artista desconhecido';
       
+      checkAndApplyMarquee('current-title');
+      checkAndApplyMarquee('mini-title');
+
       if (selectedGenreGlobal === 'Todos') {
         document.getElementById('current-genre').innerText = currentTrack.genre || 'Geral';
       }
@@ -824,6 +860,7 @@
 
       if (currentTrack) {
         document.getElementById('mini-player').style.display = 'flex';
+        checkAndApplyMarquee('mini-title');
       } else {
         document.getElementById('mini-player').style.display = 'none';
       }
