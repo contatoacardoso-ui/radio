@@ -7,13 +7,13 @@
   <style>
     :root {
       --bg-color: #09090b;
-      --panel-bg: rgba(24, 24, 27, 0.85);
+      --panel-bg: rgba(20, 20, 23, 0.85);
       --card-bg: #18181b;
       --card-border: #27272a;
       --input-bg: #09090b;
       --text-main: #f4f4f5;
       --text-muted: #a1a1aa;
-      --accent: #22c55e;
+      --accent: #3b82f6;
       --danger: #f43f5e;
       --danger-bg: rgba(244, 63, 94, 0.15);
       --warning: #f59e0b;
@@ -34,11 +34,11 @@
       color: var(--text-main);
       display: flex;
       justify-content: center;
-      padding: 24px 16px;
+      padding: 32px 16px;
       min-height: 100vh;
     }
 
-    /* Proteção de Login */
+    /* Tela de Login (Bloqueio) */
     #lock-screen {
       display: flex;
       position: fixed;
@@ -57,7 +57,7 @@
       background: #18181b;
       border: 1px solid #27272a;
       border-radius: 16px;
-      padding: 24px;
+      padding: 28px;
       width: 100%;
       max-width: 360px;
       display: flex;
@@ -68,28 +68,29 @@
     }
 
     .login-card h2 {
-      font-size: 1.1rem;
+      font-size: 1.2rem;
       font-weight: 700;
     }
 
+    /* Layout Principal Horizontal */
     .admin-container {
-      display: none; /* Escondido até digitar a senha */
+      display: none; /* Exibido apenas após autenticar */
       width: 100%;
-      max-width: 500px;
+      max-width: 820px;
       flex-direction: column;
-      gap: 18px;
+      gap: 20px;
     }
 
     header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding-bottom: 14px;
+      padding-bottom: 16px;
       border-bottom: 1px solid var(--card-border);
     }
 
     .header-title h1 {
-      font-size: 1.35rem;
+      font-size: 1.5rem;
       font-weight: 700;
       letter-spacing: -0.02em;
       background: linear-gradient(180deg, #ffffff 0%, #a1a1aa 100%);
@@ -99,7 +100,7 @@
 
     .header-title p {
       color: var(--text-muted);
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       margin-top: 2px;
     }
 
@@ -107,8 +108,8 @@
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       color: var(--text-main);
-      width: 42px;
-      height: 42px;
+      width: 44px;
+      height: 44px;
       border-radius: 12px;
       display: flex;
       align-items: center;
@@ -116,16 +117,18 @@
       cursor: pointer;
       transition: all 0.2s ease;
       outline: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
 
     .btn-icon:hover {
       background: #27272a;
       border-color: #52525b;
+      transform: translateY(-1px);
     }
 
     .btn-icon svg {
-      width: 20px;
-      height: 20px;
+      width: 22px;
+      height: 22px;
       fill: none;
       stroke: currentColor;
       stroke-width: 2;
@@ -137,12 +140,12 @@
       background: var(--panel-bg);
       backdrop-filter: blur(12px);
       border: 1px solid var(--card-border);
-      border-radius: 16px;
-      padding: 20px;
+      border-radius: 18px;
+      padding: 24px;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 18px;
     }
 
     .card-header {
@@ -169,11 +172,22 @@
       font-weight: 600;
     }
 
+    /* Formulario Horizontal em Grid */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
     .form-group {
       display: flex;
       flex-direction: column;
       gap: 6px;
       text-align: left;
+    }
+
+    .form-group.full-width {
+      grid-column: span 2;
     }
 
     label {
@@ -193,6 +207,7 @@
       font-size: 0.9rem;
       outline: none;
       transition: all 0.2s ease;
+      width: 100%;
     }
 
     input:focus {
@@ -200,11 +215,20 @@
       box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
     }
 
+    .form-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-top: 4px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
     .checkbox-group {
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 4px 0;
     }
 
     .checkbox-group input {
@@ -224,15 +248,13 @@
     .button-row {
       display: flex;
       gap: 10px;
-      margin-top: 6px;
     }
 
     button.btn-primary {
-      flex: 1;
       background: var(--text-main);
       color: var(--bg-color);
       border: none;
-      padding: 13px;
+      padding: 12px 24px;
       border-radius: 10px;
       font-weight: 700;
       font-size: 0.9rem;
@@ -242,6 +264,7 @@
       justify-content: center;
       align-items: center;
       gap: 8px;
+      white-space: nowrap;
     }
 
     button.btn-primary:hover {
@@ -259,30 +282,32 @@
       background: #27272a;
       color: var(--text-main);
       border: 1px solid var(--card-border);
-      padding: 13px 18px;
+      padding: 12px 18px;
       border-radius: 10px;
       font-weight: 600;
       font-size: 0.9rem;
       cursor: pointer;
       transition: all 0.2s ease;
       display: none;
+      white-space: nowrap;
     }
 
     button.btn-cancel:hover {
       background: #3f3f46;
     }
 
+    /* Lista de Faixas */
     .track-list {
       display: flex;
       flex-direction: column;
       gap: 10px;
-      max-height: 380px;
+      max-height: 400px;
       overflow-y: auto;
       padding-right: 4px;
     }
 
     .track-list::-webkit-scrollbar {
-      width: 4px;
+      width: 5px;
     }
 
     .track-list::-webkit-scrollbar-thumb {
@@ -296,19 +321,25 @@
       align-items: center;
       background: rgba(24, 24, 27, 0.8);
       border: 1px solid var(--card-border);
-      padding: 12px 14px;
+      padding: 14px 16px;
       border-radius: 12px;
+      transition: all 0.2s ease;
+    }
+
+    .track-item:hover {
+      border-color: #3f3f46;
+      background: #1c1c20;
     }
 
     .track-info {
       overflow: hidden;
-      margin-right: 12px;
+      margin-right: 16px;
       flex: 1;
       min-width: 0;
     }
 
     .track-title {
-      font-size: 0.875rem;
+      font-size: 0.9rem;
       font-weight: 600;
       white-space: nowrap;
       overflow: hidden;
@@ -317,7 +348,7 @@
     }
 
     .track-sub {
-      font-size: 0.75rem;
+      font-size: 0.78rem;
       color: var(--text-muted);
       margin-top: 3px;
       white-space: nowrap;
@@ -334,10 +365,10 @@
 
     .btn-action {
       border: 1px solid transparent;
-      font-size: 0.75rem;
+      font-size: 0.78rem;
       font-weight: 600;
       cursor: pointer;
-      padding: 7px 12px;
+      padding: 8px 14px;
       border-radius: 8px;
       transition: all 0.2s ease;
     }
@@ -365,7 +396,7 @@
     }
 
     .status-msg {
-      font-size: 0.8rem;
+      font-size: 0.825rem;
       text-align: center;
       color: var(--text-muted);
       padding: 12px 0;
@@ -379,8 +410,8 @@
       left: 0;
       width: 100vw;
       height: 100vh;
-      background: rgba(0, 0, 0, 0.8);
-      backdrop-filter: blur(6px);
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
       z-index: 999;
       justify-content: center;
       align-items: center;
@@ -391,7 +422,7 @@
       background: #18181b;
       border: 1px solid var(--card-border);
       border-radius: 20px;
-      padding: 22px;
+      padding: 24px;
       width: 100%;
       max-width: 420px;
       display: flex;
@@ -409,7 +440,7 @@
     }
 
     .modal-header h2 {
-      font-size: 1rem;
+      font-size: 1.05rem;
       font-weight: 700;
     }
 
@@ -420,30 +451,50 @@
       font-size: 1.4rem;
       cursor: pointer;
     }
+
+    /* Responsividade para celulares */
+    @media (max-width: 640px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      .form-group.full-width {
+        grid-column: span 1;
+      }
+      .form-footer {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .button-row {
+        width: 100%;
+      }
+      button.btn-primary {
+        width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
 
-  <!-- TELA DE AUTENTICAÇÃO (SOLICITA SENHA EM CADA REFRESH) -->
+  <!-- AUTENTICAÇÃO OBRIGATÓRIA A CADA REFRESH -->
   <div id="lock-screen">
     <div class="login-card">
-      <h2>Acesso Administrativo</h2>
-      <p style="font-size: 0.8rem; color: var(--text-muted);">Digite a senha para acessar o painel.</p>
+      <h2>Painel de Controle</h2>
+      <p style="font-size: 0.8rem; color: var(--text-muted);">Digite a senha para acessar a administração.</p>
       <form onsubmit="autenticarPainel(event)">
         <div class="form-group">
-          <input type="password" id="admin-pass" placeholder="Digite a senha" required autofocus>
+          <input type="password" id="admin-pass" placeholder="Sua senha de acesso" required autofocus>
         </div>
-        <button type="submit" class="btn-primary" style="width: 100%; margin-top: 12px;">Acessar</button>
+        <button type="submit" class="btn-primary" style="width: 100%; margin-top: 12px;">Entrar no Painel</button>
       </form>
     </div>
   </div>
 
-  <!-- CONTEÚDO DO PAINEL -->
+  <!-- CONTAINER PRINCIPAL (LAYOUT HORIZONTAL) -->
   <div class="admin-container" id="admin-main">
     <header>
       <div class="header-title">
         <h1>Central Admin</h1>
-        <p>Gerenciamento de Transmissão</p>
+        <p>Lançamento & Transmissão ao Vivo</p>
       </div>
       <button class="btn-icon" onclick="abrirModalConfig()" title="Configurações do GitHub">
         <svg viewBox="0 0 24 24">
@@ -453,39 +504,44 @@
       </button>
     </header>
 
-    <!-- Formulário de Lançamento / Edição -->
+    <!-- Formulário Lado a Lado (Grid Horizontal) -->
     <div class="card">
       <div class="card-header">
-        <div class="card-title" id="form-card-title">Novo Lançamento</div>
+        <div class="card-title" id="form-card-title">Cadastrar Novo Lançamento</div>
       </div>
       <form id="add-track-form" onsubmit="salvarMusica(event)">
-        <div class="form-group">
-          <label>Título da Música / Rádio:</label>
-          <input type="text" id="title" required placeholder="Ex: Boate Azul">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Título da Música / Rádio:</label>
+            <input type="text" id="title" required placeholder="Ex: Boate Azul">
+          </div>
+          <div class="form-group">
+            <label>Artista / Emissora:</label>
+            <input type="text" id="artist" required placeholder="Ex: Bruno & Marrone">
+          </div>
+          <div class="form-group">
+            <label>Gênero:</label>
+            <input type="text" id="genre" required placeholder="Ex: Sertanejo">
+          </div>
+          <div class="form-group">
+            <label>URL do Stream (MP3, M4A ou DASH):</label>
+            <input type="url" id="url" required placeholder="https://servidor.com/stream.m4a">
+          </div>
         </div>
-        <div class="form-group">
-          <label>Artista / Cantor / Emissora:</label>
-          <input type="text" id="artist" required placeholder="Ex: Bruno & Marrone">
-        </div>
-        <div class="form-group">
-          <label>Gênero:</label>
-          <input type="text" id="genre" required placeholder="Ex: Sertanejo">
-        </div>
-        <div class="form-group">
-          <label>URL do Stream (MP3, M4A ou DASH):</label>
-          <input type="url" id="url" required placeholder="https://servidor.com/stream.m4a">
-        </div>
-        <div class="checkbox-group">
-          <input type="checkbox" id="isDash">
-          <label for="isDash">Fluxo DASH / MPD (.mpd)</label>
-        </div>
-        <div class="button-row">
-          <button type="submit" class="btn-primary" id="btn-save" disabled>
-            Lançar no Servidor
-          </button>
-          <button type="button" class="btn-cancel" id="btn-cancel" onclick="cancelarEdicao()">
-            Cancelar
-          </button>
+
+        <div class="form-footer">
+          <div class="checkbox-group">
+            <input type="checkbox" id="isDash">
+            <label for="isDash">Fluxo DASH / MPD (.mpd)</label>
+          </div>
+          <div class="button-row">
+            <button type="button" class="btn-cancel" id="btn-cancel" onclick="cancelarEdicao()">
+              Cancelar
+            </button>
+            <button type="submit" class="btn-primary" id="btn-save" disabled>
+              Lançar no Servidor
+            </button>
+          </div>
         </div>
       </form>
     </div>
@@ -520,12 +576,12 @@
         <label>Personal Access Token (PAT):</label>
         <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
       </div>
-      <button type="button" class="btn-primary" onclick="salvarConfiguracoes()">Salvar Configurações</button>
+      <button type="button" class="btn-primary" style="width: 100%; margin-top: 8px;" onclick="salvarConfiguracoes()">Salvar Credenciais</button>
     </div>
   </div>
 
   <script>
-    // DEFINE A SENHA DO PAINEL AQUI
+    // SENHA DO PAINEL
     var SENHA_MESTRE = "1234"; 
 
     var playlist = [];
@@ -660,7 +716,7 @@
 
       document.getElementById('form-card-title').innerText = 'Editar Lançamento';
       document.getElementById('btn-save').innerText = 'Salvar Alterações';
-      document.getElementById('btn-cancel').style.display = 'block';
+      document.getElementById('btn-cancel').style.display = 'inline-block';
 
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -668,7 +724,7 @@
     function cancelarEdicao() {
       editingIndex = -1;
       document.getElementById('add-track-form').reset();
-      document.getElementById('form-card-title').innerText = 'Novo Lançamento';
+      document.getElementById('form-card-title').innerText = 'Cadastrar Novo Lançamento';
       document.getElementById('btn-save').innerText = 'Lançar no Servidor';
       document.getElementById('btn-cancel').style.display = 'none';
     }
