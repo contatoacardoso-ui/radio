@@ -7,17 +7,18 @@
   <style>
     :root {
       --bg-color: #09090b;
-      --panel-bg: #121215;
+      --panel-bg: rgba(24, 24, 27, 0.75);
       --card-bg: #18181b;
       --card-border: #27272a;
       --input-bg: #09090b;
       --text-main: #f4f4f5;
       --text-muted: #a1a1aa;
-      --accent: #22c55e;
-      --accent-hover: #16a34a;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
       --danger: #f43f5e;
-      --danger-hover: #e11d48;
-      --warning: #eab308;
+      --danger-bg: rgba(244, 63, 94, 0.12);
+      --warning: #f59e0b;
+      --warning-bg: rgba(245, 158, 11, 0.12);
     }
 
     * {
@@ -30,6 +31,7 @@
 
     body {
       background-color: var(--bg-color);
+      background-image: radial-gradient(circle at 50% 0%, #1e1b4b 0%, var(--bg-color) 70%);
       color: var(--text-main);
       display: flex;
       justify-content: center;
@@ -39,29 +41,32 @@
 
     .admin-container {
       width: 100%;
-      max-width: 480px;
+      max-width: 520px;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 18px;
     }
 
     header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding-bottom: 12px;
+      padding-bottom: 14px;
       border-bottom: 1px solid var(--card-border);
     }
 
     .header-title h1 {
-      font-size: 1.25rem;
+      font-size: 1.35rem;
       font-weight: 700;
       letter-spacing: -0.02em;
+      background: linear-gradient(180deg, #ffffff 0%, #a1a1aa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     .header-title p {
       color: var(--text-muted);
-      font-size: 0.78rem;
+      font-size: 0.8rem;
       margin-top: 2px;
     }
 
@@ -69,21 +74,22 @@
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       color: var(--text-main);
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       transition: all 0.2s ease;
       outline: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
 
     .btn-icon:hover {
       background: #27272a;
-      border-color: #3f3f46;
-      transform: scale(1.03);
+      border-color: #52525b;
+      transform: translateY(-1px);
     }
 
     .btn-icon svg {
@@ -98,13 +104,14 @@
 
     .card {
       background: var(--panel-bg);
+      backdrop-filter: blur(12px);
       border: 1px solid var(--card-border);
-      border-radius: 14px;
-      padding: 18px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 16px;
     }
 
     .card-header {
@@ -114,19 +121,20 @@
     }
 
     .card-title {
-      font-size: 0.9rem;
-      font-weight: 600;
+      font-size: 0.85rem;
+      font-weight: 700;
       color: var(--text-main);
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.08em;
     }
 
     .badge-count {
-      background: #27272a;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.15);
       color: var(--text-main);
       font-size: 0.75rem;
-      padding: 2px 8px;
-      border-radius: 12px;
+      padding: 2px 10px;
+      border-radius: 20px;
       font-weight: 600;
     }
 
@@ -148,16 +156,16 @@
       background: var(--input-bg);
       border: 1px solid var(--card-border);
       color: var(--text-main);
-      padding: 11px 14px;
+      padding: 12px 14px;
       border-radius: 10px;
-      font-size: 0.875rem;
+      font-size: 0.9rem;
       outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      transition: all 0.2s ease;
     }
 
     input:focus {
       border-color: #52525b;
-      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05);
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
     }
 
     .checkbox-group {
@@ -168,14 +176,14 @@
     }
 
     .checkbox-group input {
-      width: 16px;
-      height: 16px;
+      width: 18px;
+      height: 18px;
       accent-color: var(--text-main);
       cursor: pointer;
     }
 
     .checkbox-group label {
-      font-size: 0.825rem;
+      font-size: 0.85rem;
       text-transform: none;
       color: var(--text-main);
       cursor: pointer;
@@ -183,8 +191,8 @@
 
     .button-row {
       display: flex;
-      gap: 8px;
-      margin-top: 4px;
+      gap: 10px;
+      margin-top: 6px;
     }
 
     button.btn-primary {
@@ -192,10 +200,10 @@
       background: var(--text-main);
       color: var(--bg-color);
       border: none;
-      padding: 12px;
+      padding: 13px;
       border-radius: 10px;
-      font-weight: 600;
-      font-size: 0.875rem;
+      font-weight: 700;
+      font-size: 0.9rem;
       cursor: pointer;
       transition: all 0.2s ease;
       display: flex;
@@ -205,22 +213,24 @@
     }
 
     button.btn-primary:hover {
-      background: #e4e4e7;
+      background: #ffffff;
+      transform: translateY(-1px);
     }
 
     button.btn-primary:disabled {
-      opacity: 0.4;
+      opacity: 0.35;
       cursor: not-allowed;
+      transform: none;
     }
 
     button.btn-cancel {
       background: #27272a;
       color: var(--text-main);
       border: 1px solid var(--card-border);
-      padding: 12px;
+      padding: 13px 18px;
       border-radius: 10px;
       font-weight: 600;
-      font-size: 0.875rem;
+      font-size: 0.9rem;
       cursor: pointer;
       transition: all 0.2s ease;
       display: none;
@@ -233,10 +243,10 @@
     .track-list {
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      max-height: 360px;
+      gap: 10px;
+      max-height: 380px;
       overflow-y: auto;
-      padding-right: 2px;
+      padding-right: 4px;
     }
 
     .track-list::-webkit-scrollbar {
@@ -252,75 +262,82 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: var(--card-bg);
+      background: rgba(24, 24, 27, 0.8);
       border: 1px solid var(--card-border);
-      padding: 10px 14px;
-      border-radius: 10px;
-      transition: border-color 0.2s;
+      padding: 12px 14px;
+      border-radius: 12px;
+      transition: all 0.2s ease;
     }
 
     .track-item:hover {
       border-color: #3f3f46;
+      background: #202024;
     }
 
     .track-info {
       overflow: hidden;
       margin-right: 12px;
+      flex: 1;
+      min-width: 0;
     }
 
     .track-title {
-      font-size: 0.85rem;
+      font-size: 0.875rem;
       font-weight: 600;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      color: var(--text-main);
     }
 
     .track-sub {
       font-size: 0.75rem;
       color: var(--text-muted);
-      margin-top: 2px;
+      margin-top: 3px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
+    /* Container de ações visível e alinhado */
     .track-actions {
-      display: flex;
-      gap: 6px;
+      display: flex !important;
+      align-items: center;
+      gap: 8px;
       flex-shrink: 0;
     }
 
-    .btn-edit {
-      background: rgba(234, 179, 8, 0.1);
-      border: 1px solid rgba(234, 179, 8, 0.2);
-      color: var(--warning);
+    .btn-action {
+      border: 1px solid transparent;
       font-size: 0.75rem;
       font-weight: 600;
       cursor: pointer;
-      padding: 6px 10px;
-      border-radius: 6px;
+      padding: 7px 12px;
+      border-radius: 8px;
       transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
     }
 
-    .btn-edit:hover {
+    .btn-action.edit {
+      background: var(--warning-bg);
+      border-color: rgba(245, 158, 11, 0.3);
+      color: var(--warning);
+    }
+
+    .btn-action.edit:hover {
       background: var(--warning);
       color: #000;
     }
 
-    .btn-delete {
-      background: rgba(244, 63, 94, 0.1);
-      border: 1px solid rgba(244, 63, 94, 0.2);
+    .btn-action.delete {
+      background: var(--danger-bg);
+      border-color: rgba(244, 63, 94, 0.3);
       color: var(--danger);
-      font-size: 0.75rem;
-      font-weight: 600;
-      cursor: pointer;
-      padding: 6px 10px;
-      border-radius: 6px;
-      transition: all 0.2s ease;
     }
 
-    .btn-delete:hover {
+    .btn-action.delete:hover {
       background: var(--danger);
       color: #fff;
     }
@@ -340,8 +357,8 @@
       left: 0;
       width: 100vw;
       height: 100vh;
-      background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(4px);
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(6px);
       z-index: 999;
       justify-content: center;
       align-items: center;
@@ -349,16 +366,16 @@
     }
 
     .modal-card {
-      background: var(--panel-bg);
+      background: #18181b;
       border: 1px solid var(--card-border);
-      border-radius: 16px;
-      padding: 20px;
+      border-radius: 20px;
+      padding: 22px;
       width: 100%;
-      max-width: 400px;
+      max-width: 420px;
       display: flex;
       flex-direction: column;
-      gap: 14px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      gap: 16px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
       animation: modalFadeIn 0.2s ease-out;
     }
 
@@ -372,20 +389,21 @@
       justify-content: space-between;
       align-items: center;
       border-bottom: 1px solid var(--card-border);
-      padding-bottom: 10px;
+      padding-bottom: 12px;
     }
 
     .modal-header h2 {
       font-size: 1rem;
-      font-weight: 600;
+      font-weight: 700;
     }
 
     .btn-close {
       background: none;
       border: none;
       color: var(--text-muted);
-      font-size: 1.2rem;
+      font-size: 1.4rem;
       cursor: pointer;
+      line-height: 1;
     }
 
     .btn-close:hover {
@@ -398,8 +416,8 @@
   <div class="admin-container">
     <header>
       <div class="header-title">
-        <h1>Painel de Controle</h1>
-        <p>Lançamento & Edição de Músicas</p>
+        <h1>Central Admin</h1>
+        <p>Gerenciamento de Transmissão</p>
       </div>
       <button class="btn-icon" onclick="abrirModalConfig()" title="Configurações do GitHub">
         <svg viewBox="0 0 24 24">
@@ -409,7 +427,7 @@
       </button>
     </header>
 
-    <!-- Formulário de Lançamento / Edição -->
+    <!-- Formulário de Cadastro / Edição -->
     <div class="card">
       <div class="card-header">
         <div class="card-title" id="form-card-title">Novo Lançamento</div>
@@ -449,19 +467,19 @@
     <!-- Lista de Faixas Cadastradas -->
     <div class="card">
       <div class="card-header">
-        <div class="card-title">Programação Atual</div>
+        <div class="card-title">Programação Ativa</div>
         <span class="badge-count" id="count">0</span>
       </div>
-      <p class="status-msg" id="status">Carregando dados...</p>
+      <p class="status-msg" id="status">Sincronizando com o GitHub...</p>
       <div class="track-list" id="track-list"></div>
     </div>
   </div>
 
-  <!-- Modal de Configuração do GitHub -->
+  <!-- Modal de Credenciais -->
   <div class="modal-overlay" id="modal-config">
     <div class="modal-card">
       <div class="modal-header">
-        <h2>Credenciais do GitHub</h2>
+        <h2>Credenciais do Repositório</h2>
         <button class="btn-close" onclick="fecharModalConfig()">&times;</button>
       </div>
       <div class="form-group">
@@ -476,14 +494,14 @@
         <label>Personal Access Token (PAT):</label>
         <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
       </div>
-      <button type="button" class="btn-primary" onclick="salvarConfiguracoes()">Salvar Credenciais</button>
+      <button type="button" class="btn-primary" onclick="salvarConfiguracoes()">Salvar Configurações</button>
     </div>
   </div>
 
   <script>
     var playlist = [];
     var ghConfig = { owner: '', repo: '', path: 'playlist.json', token: '' };
-    var editingIndex = -1; // -1 indica novo cadastro; >= 0 indica edição de faixa existente
+    var editingIndex = -1;
 
     document.addEventListener('DOMContentLoaded', function() {
       carregarConfiguracoesSalvas();
@@ -551,7 +569,7 @@
         if (ghConfig.token) headers['Authorization'] = `token ${ghConfig.token}`;
 
         var response = await fetch(url, { headers: headers });
-        if (!response.ok) throw new Error('Não foi possível carregar playlist.json');
+        if (!response.ok) throw new Error('Não foi possível carregar o arquivo playlist.json');
 
         var data = await response.json();
         var jsonContent = decodeURIComponent(escape(atob(data.content)));
@@ -561,7 +579,7 @@
         statusEl.innerText = '';
       } catch (err) {
         console.error(err);
-        statusEl.innerText = 'Erro ao conectar. Verifique as credenciais na Engrenagem.';
+        statusEl.innerText = 'Erro de conexão. Verifique as credenciais na Engrenagem.';
       }
     }
 
@@ -579,12 +597,12 @@
         html += `
           <div class="track-item">
             <div class="track-info">
-              <div class="track-title">${track.title}</div>
-              <div class="track-sub">${track.artist} • <span style="color:var(--text-main);">${track.genre}</span></div>
+              <div class="track-title">${track.title || 'Sem título'}</div>
+              <div class="track-sub">${track.artist || 'Artista desconhecido'} • <span style="color:var(--text-main);">${track.genre || 'Geral'}</span></div>
             </div>
             <div class="track-actions">
-              <button class="btn-edit" onclick="carregarParaEdicao(${index})">Editar</button>
-              <button class="btn-delete" onclick="removerMusica(${index})">Remover</button>
+              <button type="button" class="btn-action edit" onclick="carregarParaEdicao(${index})">Editar</button>
+              <button type="button" class="btn-action delete" onclick="removerMusica(${index})">Excluir</button>
             </div>
           </div>
         `;
@@ -631,11 +649,9 @@
       var commitMsg = '';
 
       if (editingIndex >= 0) {
-        // Modo Edição
         playlist[editingIndex] = dadosMusica;
         commitMsg = `fix: Atualizada faixa "${dadosMusica.title}"`;
       } else {
-        // Modo Novo Lançamento
         playlist.push(dadosMusica);
         commitMsg = `feat: Lançamento de "${dadosMusica.title}"`;
       }
