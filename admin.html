@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Painel Administrativo - Central de Rádios</title>
+  <title>Central de Rádios - Admin</title>
   <style>
     :root {
       --bg-color: #09090b;
@@ -13,7 +13,6 @@
       --text-muted: #a1a1aa;
       --accent: #22c55e;
       --danger: #ef4444;
-      --edit: #3b82f6;
     }
 
     * {
@@ -26,25 +25,24 @@
     body {
       background-color: var(--bg-color);
       color: var(--text-main);
-      padding: 20px;
       display: flex;
       justify-content: center;
+      padding: 20px 16px;
+      min-height: 100vh;
     }
 
     .admin-container {
       width: 100%;
-      max-width: 900px;
+      max-width: 500px;
       display: flex;
       flex-direction: column;
       gap: 20px;
     }
 
     header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      text-align: center;
       border-bottom: 1px solid var(--card-border);
-      padding-bottom: 16px;
+      padding-bottom: 12px;
     }
 
     h1 {
@@ -52,74 +50,27 @@
       font-weight: 600;
     }
 
-    .btn {
-      padding: 8px 14px;
-      border-radius: 8px;
-      border: 1px solid var(--card-border);
-      background: var(--card-bg);
-      color: var(--text-main);
-      cursor: pointer;
+    p.subtitle {
+      color: var(--text-muted);
       font-size: 0.85rem;
-      font-weight: 500;
-      transition: all 0.2s;
-    }
-
-    .btn:hover {
-      background: #27272a;
-    }
-
-    .btn-primary {
-      background: #f4f4f5;
-      color: #09090b;
-      border: none;
-    }
-
-    .btn-primary:hover {
-      background: #e4e4e7;
-    }
-
-    .btn-danger {
-      background: rgba(239, 68, 68, 0.1);
-      color: var(--danger);
-      border-color: rgba(239, 68, 68, 0.2);
-    }
-
-    .btn-danger:hover {
-      background: var(--danger);
-      color: #fff;
-    }
-
-    .btn-edit {
-      background: rgba(59, 130, 246, 0.1);
-      color: var(--edit);
-      border-color: rgba(59, 130, 246, 0.2);
-    }
-
-    .btn-edit:hover {
-      background: var(--edit);
-      color: #fff;
+      margin-top: 4px;
     }
 
     .card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: 12px;
-      padding: 20px;
+      padding: 16px;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 12px;
     }
 
     .card-title {
-      font-size: 1.05rem;
+      font-size: 0.95rem;
       font-weight: 600;
       color: var(--text-main);
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 12px;
+      margin-bottom: 4px;
     }
 
     .form-group {
@@ -133,16 +84,18 @@
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.05em;
+      font-weight: 600;
     }
 
-    input[type="text"], input[type="url"], select {
+    input, select {
       background: #09090b;
       border: 1px solid var(--card-border);
-      border-radius: 6px;
-      padding: 10px;
       color: var(--text-main);
-      font-size: 0.85rem;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 0.9rem;
       outline: none;
+      transition: border-color 0.2s;
     }
 
     input:focus, select:focus {
@@ -153,75 +106,101 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      margin-top: auto;
-      padding-bottom: 10px;
+      margin-top: 4px;
     }
 
-    .table-container {
-      overflow-x: auto;
+    .checkbox-group input {
+      width: auto;
+      cursor: pointer;
     }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: left;
+    .checkbox-group label {
       font-size: 0.85rem;
-    }
-
-    th, td {
-      padding: 12px 14px;
-      border-bottom: 1px solid var(--card-border);
-    }
-
-    th {
-      color: var(--text-muted);
-      font-weight: 500;
-      font-size: 0.75rem;
-      text-transform: uppercase;
-    }
-
-    td {
+      text-transform: none;
       color: var(--text-main);
+      cursor: pointer;
     }
 
-    .actions-cell {
-      display: flex;
-      gap: 8px;
+    button.btn-submit {
+      background: #f4f4f5;
+      color: #09090b;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      margin-top: 8px;
     }
 
-    /* MODAL DE EDIÇÃO */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(4px);
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
+    button.btn-submit:hover {
+      opacity: 0.9;
     }
 
-    .modal {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 14px;
-      width: 90%;
-      max-width: 500px;
-      padding: 20px;
+    button.btn-submit:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .track-list {
       display: flex;
       flex-direction: column;
-      gap: 16px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      gap: 8px;
+      max-height: 400px;
+      overflow-y: auto;
     }
 
-    .modal-actions {
+    .track-item {
       display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      margin-top: 10px;
+      justify-content: space-between;
+      align-items: center;
+      background: #202024;
+      border: 1px solid var(--card-border);
+      padding: 10px 12px;
+      border-radius: 8px;
+    }
+
+    .track-info {
+      overflow: hidden;
+      margin-right: 12px;
+    }
+
+    .track-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .track-sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .btn-delete {
+      background: none;
+      border: none;
+      color: var(--danger);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+
+    .btn-delete:hover {
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    .status-msg {
+      font-size: 0.8rem;
+      text-align: center;
+      color: var(--text-muted);
     }
   </style>
 </head>
@@ -229,213 +208,236 @@
 
   <div class="admin-container">
     <header>
-      <h1>Gerenciador de Playlist</h1>
-      <button class="btn btn-primary" onclick="downloadJSON()">Baixar playlist.json</button>
+      <h1>Painel de Controle</h1>
+      <p class="subtitle">Gerenciar Músicas e Rádios no GitHub</p>
     </header>
 
-    <!-- FORMULÁRIO DE ADIÇÃO -->
+    <!-- Configuração do GitHub -->
     <div class="card">
-      <div class="card-title">Adicionar Nova Música</div>
-      <form id="add-form" onsubmit="addTrack(event)">
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Título</label>
-            <input type="text" id="add-title" required placeholder="Ex: Song Name">
-          </div>
-          <div class="form-group">
-            <label>Artista</label>
-            <input type="text" id="add-artist" required placeholder="Ex: Artist Name">
-          </div>
-          <div class="form-group">
-            <label>Gênero / Rádio</label>
-            <input type="text" id="add-genre" required placeholder="Ex: Rock, Pop, Low-fi">
-          </div>
-          <div class="form-group">
-            <label>URL do Áudio</label>
-            <input type="url" id="add-url" required placeholder="https://...">
-          </div>
-          <div class="checkbox-group">
-            <input type="checkbox" id="add-isDash">
-            <label for="add-isDash" style="text-transform:none; cursor:pointer;">Formato DASH (.mpd)</label>
-          </div>
+      <div class="card-title">1. Configuração do Repositório</div>
+      <div class="form-group">
+        <label>Usuário no GitHub:</label>
+        <input type="text" id="gh-owner" placeholder="Ex: joaosilva">
+      </div>
+      <div class="form-group">
+        <label>Nome do Repositório:</label>
+        <input type="text" id="gh-repo" placeholder="Ex: central-de-radios">
+      </div>
+      <div class="form-group">
+        <label>Personal Access Token (PAT):</label>
+        <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+      </div>
+      <button type="button" class="btn-submit" onclick="salvarConfiguracoes()">Salvar Configurações</button>
+    </div>
+
+    <!-- Formulário de Cadastro -->
+    <div class="card">
+      <div class="card-title">2. Adicionar Nova Música</div>
+      <form id="add-track-form" onsubmit="adicionarNovaMusica(event)">
+        <div class="form-group">
+          <label>Título da Música / Rádio:</label>
+          <input type="text" id="title" required placeholder="Ex: Boate Azul">
         </div>
-        <button type="submit" class="btn btn-primary" style="margin-top: 12px; width: fit-content;">Adicionar à Lista</button>
+        <div class="form-group">
+          <label>Artista / Cantor / Emissora:</label>
+          <input type="text" id="artist" required placeholder="Ex: Bruno & Marrone">
+        </div>
+        <div class="form-group">
+          <label>Gênero:</label>
+          <input type="text" id="genre" required placeholder="Ex: Sertanejo">
+        </div>
+        <div class="form-group">
+          <label>URL da Transmissão (MP3, M4A ou DASH):</label>
+          <input type="url" id="url" required placeholder="https://servidor.com/stream.m4a">
+        </div>
+        <div class="checkbox-group">
+          <input type="checkbox" id="isDash">
+          <label for="isDash">Fluxo DASH / MPD (.mpd)</label>
+        </div>
+        <button type="submit" class="btn-submit" id="btn-save" disabled>Enviar para o GitHub</button>
       </form>
     </div>
 
-    <!-- TABELA DE MÚSICAS -->
+    <!-- Lista Atual -->
     <div class="card">
-      <div class="card-title">Músicas Cadastradas (<span id="total-tracks">0</span>)</div>
-      <div class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>Título</th>
-              <th>Artista</th>
-              <th>Gênero</th>
-              <th>Formato</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody id="playlist-table-body">
-            <!-- Linhas geradas via JS -->
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL PARA EDITAR REGISTRO -->
-  <div class="modal-overlay" id="edit-modal">
-    <div class="modal">
-      <div class="card-title">Editar Música</div>
-      <input type="hidden" id="edit-index">
-      
-      <div class="form-group">
-        <label>Título</label>
-        <input type="text" id="edit-title" required>
-      </div>
-      <div class="form-group">
-        <label>Artista</label>
-        <input type="text" id="edit-artist" required>
-      </div>
-      <div class="form-group">
-        <label>Gênero / Rádio</label>
-        <input type="text" id="edit-genre" required>
-      </div>
-      <div class="form-group">
-        <label>URL do Áudio</label>
-        <input type="url" id="edit-url" required>
-      </div>
-      <div class="checkbox-group">
-        <input type="checkbox" id="edit-isDash">
-        <label for="edit-isDash" style="text-transform:none; cursor:pointer;">Formato DASH (.mpd)</label>
-      </div>
-
-      <div class="modal-actions">
-        <button class="btn" onclick="closeEditModal()">Cancelar</button>
-        <button class="btn btn-primary" onclick="saveTrackEdit()">Salvar Alterações</button>
-      </div>
+      <div class="card-title">3. Playlist Cadastrada (<span id="count">0</span>)</div>
+      <p class="status-msg" id="status">Carregando dados...</p>
+      <div class="track-list" id="track-list"></div>
     </div>
   </div>
 
   <script>
-    let playlist = [];
+    var playlist = [];
+    var ghConfig = { owner: '', repo: '', path: 'playlist.json', token: '' };
 
-    document.addEventListener('DOMContentLoaded', () => {
-      loadPlaylist();
+    document.addEventListener('DOMContentLoaded', function() {
+      carregarConfiguracoesSalvas();
+      carregarPlaylistDoGitHub();
     });
 
-    async function loadPlaylist() {
-      try {
-        const response = await fetch('playlist.json?v=' + new Date().getTime());
-        if (response.ok) {
-          playlist = await response.json();
-          renderTable();
-        }
-      } catch (err) {
-        console.warn('Não foi possível carregar o arquivo existente. Começando com lista vazia.');
+    function carregarConfiguracoesSalvas() {
+      ghConfig.owner = localStorage.getItem('gh_owner') || '';
+      ghConfig.repo = localStorage.getItem('gh_repo') || '';
+      ghConfig.token = localStorage.getItem('gh_token') || '';
+
+      document.getElementById('gh-owner').value = ghConfig.owner;
+      document.getElementById('gh-repo').value = ghConfig.repo;
+      document.getElementById('gh-token').value = ghConfig.token;
+
+      verificarBotaoSalvar();
+    }
+
+    function salvarConfiguracoes() {
+      ghConfig.owner = document.getElementById('gh-owner').value.trim();
+      ghConfig.repo = document.getElementById('gh-repo').value.trim();
+      ghConfig.token = document.getElementById('gh-token').value.trim();
+
+      localStorage.setItem('gh_owner', ghConfig.owner);
+      localStorage.setItem('gh_repo', ghConfig.repo);
+      localStorage.setItem('gh_token', ghConfig.token);
+
+      alert('Configurações salvas no navegador com sucesso!');
+      verificarBotaoSalvar();
+      carregarPlaylistDoGitHub();
+    }
+
+    function verificarBotaoSalvar() {
+      var btn = document.getElementById('btn-save');
+      if (ghConfig.owner && ghConfig.repo && ghConfig.token) {
+        btn.disabled = false;
+      } else {
+        btn.disabled = true;
       }
     }
 
-    function renderTable() {
-      const tbody = document.getElementById('playlist-table-body');
-      document.getElementById('total-tracks').innerText = playlist.length;
+    async function carregarPlaylistDoGitHub() {
+      var statusEl = document.getElementById('status');
+      var listEl = document.getElementById('track-list');
 
-      if (playlist.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--text-muted);">Nenhuma música cadastrada.</td></tr>`;
+      if (!ghConfig.owner || !ghConfig.repo) {
+        statusEl.innerText = 'Preencha as configurações do GitHub acima.';
+        listEl.innerHTML = '';
         return;
       }
 
-      tbody.innerHTML = playlist.map((track, index) => `
-        <tr>
-          <td><strong>${escapeHtml(track.title || '')}</strong></td>
-          <td>${escapeHtml(track.artist || '')}</td>
-          <td><span style="background:#27272a; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem;">${escapeHtml(track.genre || 'Sem Gênero')}</span></td>
-          <td>${track.isDash ? 'DASH (.mpd)' : 'Direto/MP3'}</td>
-          <td class="actions-cell">
-            <button class="btn btn-edit" onclick="openEditModal(${index})">Editar</button>
-            <button class="btn btn-danger" onclick="deleteTrack(${index})">Excluir</button>
-          </td>
-        </tr>
-      `).join('');
-    }
+      statusEl.innerText = 'Buscando playlist.json no GitHub...';
 
-    function addTrack(e) {
-      e.preventDefault();
+      try {
+        var url = `https://api.github.com/repos/${ghConfig.owner}/${ghConfig.repo}/contents/${ghConfig.path}?v=` + new Date().getTime();
+        var headers = {};
+        if (ghConfig.token) headers['Authorization'] = `token ${ghConfig.token}`;
 
-      const newTrack = {
-        title: document.getElementById('add-title').value.trim(),
-        artist: document.getElementById('add-artist').value.trim(),
-        genre: document.getElementById('add-genre').value.trim(),
-        url: document.getElementById('add-url').value.trim(),
-        isDash: document.getElementById('add-isDash').checked
-      };
+        var response = await fetch(url, { headers: headers });
+        if (!response.ok) throw new Error('Não foi possível ler o arquivo playlist.json');
 
-      playlist.push(newTrack);
-      renderTable();
+        var data = await response.json();
+        // Decodifica Base64 retornado pelo GitHub com suporte a caracteres UTF-8
+        var jsonContent = decodeURIComponent(escape(atob(data.content)));
+        playlist = JSON.parse(jsonContent);
 
-      // Limpa os campos do formulário
-      document.getElementById('add-form').reset();
-    }
-
-    function deleteTrack(index) {
-      if (confirm(`Deseja remover "${playlist[index].title}" da playlist?`)) {
-        playlist.splice(index, 1);
-        renderTable();
+        renderTrackList();
+        statusEl.innerText = '';
+      } catch (err) {
+        console.error(err);
+        statusEl.innerText = 'Erro ao carregar dados. Verifique as configurações.';
       }
     }
 
-    /* LÓGICA DO MODAL DE EDIÇÃO */
-    function openEditModal(index) {
-      const track = playlist[index];
-      
-      document.getElementById('edit-index').value = index;
-      document.getElementById('edit-title').value = track.title || '';
-      document.getElementById('edit-artist').value = track.artist || '';
-      document.getElementById('edit-genre').value = track.genre || '';
-      document.getElementById('edit-url').value = track.url || '';
-      document.getElementById('edit-isDash').checked = !!track.isDash;
+    function renderTrackList() {
+      var listEl = document.getElementById('track-list');
+      document.getElementById('count').innerText = playlist.length;
 
-      document.getElementById('edit-modal').style.display = 'flex';
+      if (playlist.length === 0) {
+        listEl.innerHTML = '<p class="status-msg">Nenhuma música cadastrada.</p>';
+        return;
+      }
+
+      var html = '';
+      playlist.forEach(function(track, index) {
+        html += `
+          <div class="track-item">
+            <div class="track-info">
+              <div class="track-title">${track.title}</div>
+              <div class="track-sub">${track.artist} • <span style="color:var(--text-main);">${track.genre}</span></div>
+            </div>
+            <button class="btn-delete" onclick="removerMusica(${index})">Excluir</button>
+          </div>
+        `;
+      });
+      listEl.innerHTML = html;
     }
 
-    function closeEditModal() {
-      document.getElementById('edit-modal').style.display = 'none';
-    }
+    async function adicionarNovaMusica(event) {
+      event.preventDefault();
 
-    function saveTrackEdit() {
-      const index = document.getElementById('edit-index').value;
-
-      playlist[index] = {
-        title: document.getElementById('edit-title').value.trim(),
-        artist: document.getElementById('edit-artist').value.trim(),
-        genre: document.getElementById('edit-genre').value.trim(),
-        url: document.getElementById('edit-url').value.trim(),
-        isDash: document.getElementById('edit-isDash').checked
+      var novaMusica = {
+        title: document.getElementById('title').value.trim(),
+        artist: document.getElementById('artist').value.trim(),
+        genre: document.getElementById('genre').value.trim(),
+        url: document.getElementById('url').value.trim(),
+        isDash: document.getElementById('isDash').checked
       };
 
-      closeEditModal();
-      renderTable();
+      // Adiciona na lista atual
+      playlist.push(novaMusica);
+
+      // Atualiza o repositório
+      await salvarPlaylistNoGitHub(`feat: Adicionada faixa "${novaMusica.title}"`);
+      document.getElementById('add-track-form').reset();
     }
 
-    function downloadJSON() {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(playlist, null, 2));
-      const downloadAnchor = document.createElement('a');
-      downloadAnchor.setAttribute("href", dataStr);
-      downloadAnchor.setAttribute("download", "playlist.json");
-      document.body.appendChild(downloadAnchor);
-      downloadAnchor.click();
-      downloadAnchor.remove();
+    async function removerMusica(index) {
+      if (!confirm(`Deseja remover "${playlist[index].title}"?`)) return;
+
+      var removida = playlist.splice(index, 1)[0];
+      await salvarPlaylistNoGitHub(`fix: Removida faixa "${removida.title}"`);
     }
 
-    function escapeHtml(text) {
-      return text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+    async function salvarPlaylistNoGitHub(commitMessage) {
+      var statusEl = document.getElementById('status');
+      statusEl.innerText = 'Enviando alterações para o GitHub...';
+
+      try {
+        var getUrl = `https://api.github.com/repos/${ghConfig.owner}/${ghConfig.repo}/contents/${ghConfig.path}`;
+        var headers = {
+          'Authorization': `token ${ghConfig.token}`,
+          'Accept': 'application/vnd.github.v3+json'
+        };
+
+        // 1. Obter o SHA do arquivo atual no GitHub
+        var responseGet = await fetch(getUrl, { headers: headers });
+        if (!responseGet.ok) throw new Error('Falha ao obter o arquivo atual.');
+        var fileData = await responseGet.json();
+
+        // 2. Converter a nova lista para Base64 com suporte UTF-8
+        var jsonString = JSON.stringify(playlist, null, 2);
+        var contentBase64 = btoa(unescape(encodeURIComponent(jsonString)));
+
+        // 3. Enviar o PUT com a atualização do arquivo
+        var responsePut = await fetch(getUrl, {
+          method: 'PUT',
+          headers: headers,
+          body: JSON.stringify({
+            message: commitMessage,
+            content: contentBase64,
+            sha: fileData.sha
+          })
+        });
+
+        if (responsePut.ok) {
+          alert('Música salva e repositório atualizado!');
+          renderTrackList();
+          statusEl.innerText = '';
+        } else {
+          var errData = await responsePut.json();
+          throw new Error(errData.message || 'Erro ao gravar no GitHub.');
+        }
+
+      } catch (err) {
+        console.error(err);
+        alert('Erro ao salvar no GitHub: ' + err.message);
+        statusEl.innerText = 'Erro ao salvar alterações.';
+      }
     }
   </script>
 </body>
