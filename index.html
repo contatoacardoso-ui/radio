@@ -29,15 +29,16 @@
       padding: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation; /* Impede gestos de zoom de clique duplo */
+      touch-action: pan-x pan-y;
     }
 
     html, body {
       height: 100%;
+      width: 100%;
       overflow: hidden;
-      touch-action: none; /* Bloqueia zoom e pan do navegador */
       -webkit-user-select: none;
       user-select: none;
+      touch-action: none;
     }
 
     body {
@@ -85,7 +86,8 @@
       gap: 8px;
       overflow-y: auto;
       padding-right: 2px;
-      touch-action: pan-y; /* Permite rolar apenas verticalmente */
+      touch-action: pan-y;
+      -webkit-overflow-scrolling: touch;
     }
 
     .genre-card {
@@ -320,6 +322,7 @@
       gap: 6px;
       padding-right: 4px;
       touch-action: pan-y;
+      -webkit-overflow-scrolling: touch;
     }
 
     .history-list::-webkit-scrollbar,
@@ -457,20 +460,54 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       audioElement = document.getElementById('audio-element');
-      blockPinchZoom();
+      blockAllZoom();
       setupShakaPlayer();
       setupEventListeners();
       loadPlaylist();
     });
 
-    // Bloqueia gestos de zoom de pinça no iOS/Android
-    function blockPinchZoom() {
-      document.addEventListener('gesturestart', (e) => e.preventDefault());
+    // Bloqueia rigorosamente qualquer tipo de zoom (iOS Safari / Android Chrome / WebViews)
+    function blockAllZoom() {
+      // 1. Bloqueia gesto de pinça (pinch zoom) no Safari iOS
+      document.addEventListener('gesturestart', (e) => e.preventDefault(), { passive: false });
+      document.addEventListener('gesturechange', (e) => e.preventDefault(), { passive: false });
+      document.addEventListener('gestureend', (e) => e.preventDefault(), { passive: false });
+
+      // 2. Bloqueia multi-touch (2 ou mais dedos na tela)
+      document.addEventListener('touchstart', (e) => {
+        if (e.touches.length > 1) {
+          e.preventDefault();
+        }
+      }, { passive: false });
+
       document.addEventListener('touchmove', (e) => {
         if (e.touches.length > 1) {
           e.preventDefault();
         }
       }, { passive: false });
+
+      // 3. Bloqueia toque duplo rápido (double-tap zoom)
+      let lastTouchTime = 0;
+      document.addEventListener('touchend', (e) => {
+        const now = Date.now();
+        if (now - lastTouchTime <= 300) {
+          e.preventDefault();
+        }
+        lastTouchTime = now;
+      }, { passive: false });
+
+      // 4. Bloqueia Zoom com roda do mouse / atalhos Ctrl/Cmd + e Ctrl/Cmd - em desktops
+      document.addEventListener('wheel', (e) => {
+        if (e.ctrlKey) {
+          e.preventDefault();
+        }
+      }, { passive: false });
+
+      document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && (e.key === '+' || e.key === '-' || e.key === '=' || e.key === '0')) {
+          e.preventDefault();
+        }
+      });
     }
 
     function setupShakaPlayer() {
@@ -542,7 +579,6 @@
       localStorage.setItem('radio_active_view', 'player');
       localStorage.setItem('radio_selected_genre', genre);
 
-      // Gerencia o histórico do navegador para o botão voltar do celular funcionar dentro do PWA
       if (history.state?.view !== 'player') {
         history.pushState({ view: 'player' }, '');
       }
@@ -660,7 +696,6 @@
         document.getElementById('svg-pause').style.display = 'none';
         document.getElementById('soundwave').classList.remove('playing');
 
-        // Se o navegador bloquear o Autoplay ao reabrir, toca no primeiro clique
         const enableAudioOnTouch = () => {
           audioElement.play();
           window.removeEventListener('click', enableAudioOnTouch);
@@ -705,7 +740,6 @@
         }
       });
 
-      // Trata o botão físico/gesto de "Voltar" do Android/iOS
       window.addEventListener('popstate', (e) => {
         showHomeScreen();
       });
