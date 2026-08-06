@@ -151,7 +151,6 @@
       min-width: 0;
     }
 
-    /* Regras do Marquee de Alta Compatibilidade */
     .marquee-container {
       overflow: hidden;
       white-space: nowrap;
@@ -222,7 +221,7 @@
     .player-card-compact {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      padding: 14px 16px;
+      padding: 16px 18px;
       border-radius: 14px;
       display: flex;
       align-items: center;
@@ -308,6 +307,9 @@
       font-size: 0.65rem;
       color: var(--accent-muted);
       margin-top: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 500;
     }
 
     button.btn-play-compact {
@@ -543,7 +545,7 @@
     var poolPlaylist = []; 
     var playedHistory = [];
     var currentTrack = null;
-    var selectedGenreGlobal = 'Todos';
+    var selectedGenreGlobal = null;
     var isPlaying = false;
     var shakaPlayer = null;
     var audioElement = null;
@@ -672,7 +674,6 @@
       homeScreen.innerHTML = html;
     }
 
-    // Algoritmo de Marquee Manual seguro e ultra-compatível com TV Box
     function checkAndApplyMarquee(elementId) {
       setTimeout(function() {
         var el = document.getElementById(elementId);
@@ -691,7 +692,7 @@
         if (textWidth > containerWidth && containerWidth > 0) {
           var maxScroll = textWidth - containerWidth + 12;
           var pos = 0;
-          var direction = 1; // 1 = avançando, -1 = voltando
+          var direction = 1; 
           var pauseTicks = 0;
 
           marqueeIntervals[elementId] = setInterval(function() {
@@ -705,31 +706,78 @@
               if (pos >= maxScroll) {
                 pos = maxScroll;
                 direction = -1;
-                pauseTicks = 30; // Pausa no final (~1.5s)
+                pauseTicks = 30; 
               }
             } else {
               pos -= 1;
               if (pos <= 0) {
                 pos = 0;
                 direction = 1;
-                pauseTicks = 40; // Pausa no início (~2s)
+                pauseTicks = 40; 
               }
             }
 
             el.style.transform = 'translateX(-' + pos + 'px)';
-          }, 40); // 40ms por frame para suavidade
+          }, 40);
         }
       }, 150);
+    }
+
+    function updateTrackDisplay() {
+      if (!currentTrack) return;
+
+      document.getElementById('current-title').innerText = currentTrack.title || 'Sem título';
+      document.getElementById('current-artist').innerText = currentTrack.artist || 'Artista desconhecido';
+
+      document.getElementById('mini-title').innerText = currentTrack.title || 'Sem título';
+      document.getElementById('mini-artist').innerText = currentTrack.artist || 'Artista desconhecido';
+
+      var genreBadge = document.getElementById('current-genre');
+      if (selectedGenreGlobal === 'Todos' && currentTrack.genre) {
+        genreBadge.innerText = currentTrack.genre;
+        genreBadge.style.display = 'inline-block';
+      } else {
+        genreBadge.style.display = 'none';
+      }
+
+      checkAndApplyMarquee('current-title');
+      checkAndApplyMarquee('mini-title');
+    }
+
+    function renderHistoryUI() {
+      var container = document.getElementById('history-list');
+      if (!container) return;
+
+      if (playedHistory.length === 0) {
+        container.innerHTML = '<div class="empty-history">Primeira faixa da sintonia atual</div>';
+        return;
+      }
+
+      var html = '';
+      playedHistory.forEach(function(track) {
+        html += `
+          <div class="history-item">
+            <div class="history-item-info">
+              <div class="history-item-title">${track.title}</div>
+              <div class="history-item-artist">${track.artist}</div>
+            </div>
+            ${(selectedGenreGlobal === 'Todos' && track.genre) ? `<span class="history-tag">${track.genre}</span>` : ''}
+          </div>
+        `;
+      });
+      container.innerHTML = html;
     }
 
     function startRadio(genre, isUserAction) {
       if (typeof isUserAction === 'undefined') isUserAction = true;
 
+      // Se clicar no mesmo gênero que já está ativo, apenas entra na tela
       if (selectedGenreGlobal === genre && currentTrack) {
         showPlayerScreen(genre);
         return;
       }
 
+      // NOVO GÊNERO SELECIONADO: Zera o histórico e reordena a lista
       selectedGenreGlobal = genre;
       playedHistory = [];
       currentTrack = null;
@@ -764,21 +812,9 @@
       poolPlaylist = shuffleArray(baseList.filter(function(item) { return item.url !== track.url; }));
 
       showPlayerScreen(genre);
-
-      document.getElementById('current-title').innerText = currentTrack.title || 'Sem título';
-      document.getElementById('current-artist').innerText = currentTrack.artist || 'Artista desconhecido';
-
-      document.getElementById('mini-title').innerText = currentTrack.title || 'Sem título';
-      document.getElementById('mini-artist').innerText = currentTrack.artist || 'Artista desconhecido';
-      
-      checkAndApplyMarquee('current-title');
-      checkAndApplyMarquee('mini-title');
-
-      if (selectedGenreGlobal === 'Todos') {
-        document.getElementById('current-genre').innerText = currentTrack.genre || 'Geral';
-      }
-
+      updateTrackDisplay();
       renderHistoryUI();
+
       updateMediaSession(currentTrack);
 
       try {
@@ -801,14 +837,10 @@
       document.getElementById('player-screen').style.display = 'flex';
       document.getElementById('page-subtitle').innerText = genre === 'Todos' ? 'Todas as Rádios' : '' + genre;
 
-      var genreBadge = document.getElementById('current-genre');
-      if (genre === 'Todos') {
-        genreBadge.style.display = 'inline-block';
-      } else {
-        genreBadge.style.display = 'none';
+      if (currentTrack) {
+        updateTrackDisplay();
+        renderHistoryUI();
       }
-
-      checkAndApplyMarquee('current-title');
     }
 
     async function playNextRandomTrack(isAutoNext) {
@@ -829,19 +861,7 @@
 
       sessionStorage.setItem('radio_current_track', JSON.stringify(currentTrack));
 
-      document.getElementById('current-title').innerText = currentTrack.title || 'Sem título';
-      document.getElementById('current-artist').innerText = currentTrack.artist || 'Artista desconhecido';
-
-      document.getElementById('mini-title').innerText = currentTrack.title || 'Sem título';
-      document.getElementById('mini-artist').innerText = currentTrack.artist || 'Artista desconhecido';
-      
-      checkAndApplyMarquee('current-title');
-      checkAndApplyMarquee('mini-title');
-
-      if (selectedGenreGlobal === 'Todos') {
-        document.getElementById('current-genre').innerText = currentTrack.genre || 'Geral';
-      }
-
+      updateTrackDisplay();
       renderHistoryUI();
       updateMediaSession(currentTrack);
 
@@ -876,30 +896,6 @@
           navigator.mediaSession.setActionHandler('seekforward', null);
         } catch (e) {}
       }
-    }
-
-    function renderHistoryUI() {
-      var container = document.getElementById('history-list');
-      if (!container) return;
-
-      if (playedHistory.length === 0) {
-        container.innerHTML = '<div class="empty-history">Primeira faixa da sintonia atual</div>';
-        return;
-      }
-
-      var html = '';
-      playedHistory.forEach(function(track) {
-        html += `
-          <div class="history-item">
-            <div class="history-item-info">
-              <div class="history-item-title">${track.title}</div>
-              <div class="history-item-artist">${track.artist}</div>
-            </div>
-            ${(selectedGenreGlobal === 'Todos' && track.genre) ? `<span class="history-tag">${track.genre}</span>` : ''}
-          </div>
-        `;
-      });
-      container.innerHTML = html;
     }
 
     function showHomeScreen() {
